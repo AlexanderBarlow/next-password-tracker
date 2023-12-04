@@ -1,6 +1,4 @@
-// pages/dashboard.tsx
-
-import { NextPage } from "next";
+import type { NextPage } from "next";
 
 interface Password {
   id: number;
@@ -113,9 +111,6 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn, password }) => {
           </div>
         </div>
       </div>
-
-      {/* Include your dashboard.js script */}
-      <script src="/js/dashboard.js"></script>
     </section>
   );
 };

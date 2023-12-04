@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 
 const SignupForm: React.FC = () => {
   const [userName, setUserName] = useState("");
@@ -6,7 +7,7 @@ const SignupForm: React.FC = () => {
 
   const handleSignup = async () => {
     try {
-      const response = await fetch("/api/signup", {
+      const response: Response = await fetch("/api/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -19,13 +20,14 @@ const SignupForm: React.FC = () => {
 
       if (response.ok) {
         // Signup successful, handle the response as needed
+        console.log(await response.json());
       } else {
         // Signup failed, handle the error response
-        const errorData = await response.json();
-        console.error("Signup failed:", errorData.error);
+        const errorData: unknown = await response.json();
+        console.error("Signup failed:", errorData);
       }
-    } catch (error: any) {
-      console.error("Signup failed:", error.message);
+    } catch (error: unknown) {
+      console.error("Signup failed:", error);
     }
   };
 
@@ -34,7 +36,7 @@ const SignupForm: React.FC = () => {
       <section className="row justify-content-center">
         <section className="col-3 align-self-center rounded border bg-white p-5">
           <h2>Signup</h2>
-          <form className="signUpForm" o>
+          <form className="signUpForm">
             <div className="mb-3">
               <label className="form-label" htmlFor="userName">
                 Username:
@@ -68,7 +70,7 @@ const SignupForm: React.FC = () => {
             </button>
             <p className="text-secondary mb-0 pt-3">
               Already have an account? Click here to{" "}
-              <a href="/">Log In.</a>
+              <Link href="/">Log In.</Link>
             </p>
           </form>
         </section>

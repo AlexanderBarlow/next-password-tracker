@@ -1,42 +1,64 @@
-// // pages/api/register.ts
+import { NextApiRequest, NextApiResponse } from "next";
+import { User } from "../../../server/models";
 
-// import { User } from "../../../server/models";
-// import bcrypt from "bcrypt";
-// import { NextApiRequest, NextApiResponse } from "next";
+// Define the request body type
+interface SignupRequestBody {
+  userName: string;
+  password: string;
+}
 
-// interface ExtendedNextApiRequest extends NextApiRequest {
-//   session: any; // Adjust the type based on your session configuration
-// }
+// Define the response type
+interface SignupSuccessResponse {
+  message: string;
+  user: User; // Adjust the type based on your User model
+}
 
-// export default async function handler(
-//   req: ExtendedNextApiRequest,
-//   res: NextApiResponse,
-// ) {
-//   if (req.method !== "POST") {
-//     return res.status(405).end(); // Method Not Allowed
-//   }
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<SignupSuccessResponse | { message: string }>,
+) {
+  if (req.method === "POST") {
+    try {
+      // Validate the structure of the request body
+      if (!isValidSignupRequestBody(req.body)) {
+        res.status(400).json({ message: "Invalid request body" });
+        return;
+      }
 
-//   const session = req.session;
+      // Destructure the validated request body
+      const { userName, password } = req.body
 
-//   if (session) {
-//     return res.status(403).json({ error: "Already logged in." });
-//   }
+      // Create a new user using the Sequelize model
+      const newUser = await User.create({
+        username: userName,
+        user_password: password,
+      });
 
-//   try {
-//     const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      // Send a response indicating successful signup
+      const response: SignupSuccessResponse = {
+        message: "User created successfully",
+        user: newUser,
+      };
+      res.status(201).json(response);
+    } catch (error) {
+      // Handle any errors that occurred during user creation
+      console.error("Error creating user:", error);
+      res.status(500).json({ message: "Error creating user" });
+    }
+  } else {
+    // Method not allowed
+    res.status(405).json({ message: "Method Not Allowed" });
+  }
+}
 
-//     const userData = await User.create({
-//       user_name: req.body.userName,
-//       user_password: hashedPassword,
-//     });
-
-//     req.session.save(() => {
-//       req.session.user_id = userData.id;
-//       req.session.logged_in = true;
-//       res.status(200).json(userData);
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(400).json({ error: "Registration failed." });
-//   }
-// }
+// Function to validate the structure of the request body
+function isValidSignupRequestBody(body: unknown): body is SignupRequestBody {
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    "userName" in body &&
+    typeof (body as Record<string, unknown>).userName === "string" &&
+    "password" in body &&
+    typeof (body as Record<string, unknown>).password === "string"
+  );
+}
