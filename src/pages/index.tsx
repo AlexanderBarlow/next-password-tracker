@@ -3,10 +3,18 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
+interface UsernameState {
+  value: string;
+}
+
+interface PasswordState {
+  value: string;
+}
+
 const Login: React.FC = () => {
   const router = useRouter();
-  const username = ''
-  const password = ''
+ const [username, setUserName] = useState<UsernameState>({ value: '' });
+  const [password, setPassword] = useState<PasswordState>({ value: '' });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,8 +54,8 @@ const Login: React.FC = () => {
                 className="form-control"
                 id="username"
                 name="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={username.value}
+                onChange={(e) => setUserName({ value: e.target.value })}
               />
             </div>
             <div className="mb-3">
@@ -59,8 +67,8 @@ const Login: React.FC = () => {
                 className="form-control"
                 id="password"
                 name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={password.value}
+                onChange={(e) => setPassword({ value: e.target.value })}
               />
             </div>
             <button type="submit" className="btn btn-danger" id="login">

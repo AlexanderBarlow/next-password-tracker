@@ -36,6 +36,6 @@
     "**/*.tsx",
     "**/*.cjs",
     ".next/types/**/*.ts"
-  ],
+, "pages/signup/index.tsx"  ],
   "exclude": ["node_modules"]
 }

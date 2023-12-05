@@ -4,10 +4,15 @@ const seedAll = require("./seeds/seed");
 const routes = require("./controllers");
 const session = require("express-session");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
+const cors = require("cors");
 
 console.log("Server file is running!");
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:3000', // Update with your frontend URL
+  credentials: true,
+}));
 const PORT = process.env.PORT || 3001;
 
 const sess = {

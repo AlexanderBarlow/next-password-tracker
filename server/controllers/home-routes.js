@@ -16,49 +16,49 @@ router.get("/", async (req, res) => {
   }
 });
 
-// router.get('/username', (req, res) => {
-//   res.render('username');
-// });
+router.get('/username', (req, res) => {
+  res.render('username');
+});
 
-// router.get('/password', (req, res) => {
-//   res.render('password');
-// });
+router.get('/password', (req, res) => {
+  res.render('password');
+});
 
-// // Login
-// router.get('/login', (req, res) => {
-//   if (req.session.logged_in) {
-//     res.redirect('/dashboard');
-//     return;
-//   } else {
-//     res.render('login');
-//   }
-// });
+// Login
+router.get('/login', (req, res) => {
+  if (req.session.logged_in) {
+    res.redirect('/dashboard');
+    return;
+  } else {
+    res.render('login');
+  }
+});
 
-// // sign up input
-// router.get('/signup', (req, res) => {
-//   if (req.session.logged_in) {
-//     res.redirect('/dashboard');
-//     return;
-//   } else {
-//     res.render('signup');
-//   }
-// });
+// sign up input
+router.get('/signup', (req, res) => {
+  if (req.session.logged_in) {
+    res.redirect('/dashboard');
+    return;
+  } else {
+    res.render('signup');
+  }
+});
 
-// // create user
-// router.post('/createuser', async (req, res) => {
-//   try {
-//     const userData = await User.create(req.body);
+// create user
+router.post('/createuser', async (req, res) => {
+  try {
+    const userData = await User.create(req.body);
 
-//     req.session.save(() => {
-//       req.session.user_id = userData.id;
-//       req.session.logged_in = true;
+    req.session.save(() => {
+      req.session.user_id = userData.id;
+      req.session.logged_in = true;
 
-//       res.status(200).json(userData);
-//     });
-//   } catch (err) {
-//     res.status(400).json(err);
-//   }
+      res.status(200).json(userData);
+    });
+  } catch (err) {
+    res.status(400).json(err);
+  }
 
-// });
+});
 
 module.exports = router;
