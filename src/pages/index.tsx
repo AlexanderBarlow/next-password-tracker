@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
 const Login: React.FC = () => {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const username = ''
+  const password = ''
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -1,6 +1,6 @@
 const express = require("express");
 const sequelize = require("./config/connection");
-const seedAll = require("./seeds/index");
+const seedAll = require("./seeds/seed");
 const routes = require("./controllers");
 const session = require("express-session");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -35,7 +35,7 @@ sequelize
     console.log("Database synchronized successfully.");
 
     // Call the seedAll function here after syncing the database
-    seedAll;
+    seedAll();
 
     app.listen(PORT, () => console.log(`Now listening: ${PORT}`));
   })
