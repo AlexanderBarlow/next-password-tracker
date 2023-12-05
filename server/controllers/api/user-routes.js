@@ -40,15 +40,18 @@ router.post('/', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
+    console.log("Hitting route: /login")
+    console.log(req.body.username.value)
+    console.log(req.body.password.value)
   try {
-    const userData = await User.findOne({ where: { user_name: req.body.userName } });
+    const userData = await User.findOne({ where: { user_name: req.body.username.value } });
 
     if (!userData) {
       res.status(400).json({ message: 'Incorrect username or password, please try again' });
       return;
     }
 
-    const validPassword = await userData.isValidPassword(req.body.password);
+    const validPassword = await userData.isValidPassword(req.body.password.value);
     if (!validPassword) {
       res.status(400).json({ message: 'Incorrect username or password, please try again' });
       return;

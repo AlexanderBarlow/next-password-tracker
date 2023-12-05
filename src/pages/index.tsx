@@ -16,28 +16,41 @@ const Login: React.FC = () => {
  const [username, setUserName] = useState<UsernameState>({ value: '' });
   const [password, setPassword] = useState<PasswordState>({ value: '' });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (username && password) {
-      const response = await fetch("/api/login", {
+  if (username && password) {
+    try {
+      const response = await fetch("http://localhost:3001/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
-      }
-      ) ;
+      });
 
-      if (response.ok) {
-        // Login successful, redirect to /dashboard
+      if (response.status === 200) {
+        // Assuming a 200 status code indicates successful login
+        // Extract and store the authentication token if applicable
+
+        // Redirect to /dashboard
         router.push("/dashboard");
       } else {
-        // Handle login error
-        alert("Invalid Login Attempt");
+        // Handle specific status codes or display a generic message
+        if (response.status === 401) {
+          alert("Invalid Login Attempt");
+        } else {
+          alert("Login Failed");
+        }
       }
+    } catch (error) {
+      console.error("Error during login:", error);
+      // Handle fetch errors (network issues, server unreachable, etc.)
+      alert("An error occurred during login");
     }
-  };
+  }
+};
+
 
   return (
     <section className="container-fluid">
