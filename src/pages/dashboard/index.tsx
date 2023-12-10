@@ -1,5 +1,11 @@
 import type { NextPage } from "next";
-
+import { NextPageContext } from 'next';
+import { useRouter } from 'next/router';
+import { getSession } from 'next-auth/react';
+import type { NextApiRequest, NextApiResponse } from "next";
+import Cookies from 'js-cookie';
+import jwt from 'jsonwebtoken';
+import { useEffect } from "react";
 interface Password {
   id: number;
   title: string;
@@ -9,15 +15,46 @@ interface Password {
 interface DashboardProps {
   loggedIn: boolean;
   password: Password[];
+  sess: any;
 }
 
 const Dashboard: NextPage<DashboardProps> = ({ loggedIn, password }) => {
+  const router = useRouter();
+
+useEffect(() => {
+  const sessionToken = Cookies.get('sessionToken');
+  console.log(sessionToken);
+
+  if (sessionToken) {
+    try {
+      // Decode the JWT token (no verification)
+      const decodedToken = jwt.decode(sessionToken);
+      console.log(decodedToken);
+      const loggedInStatus = decodedToken.logged_in;
+      console.log(loggedInStatus);
+
+      // Redirect to login page if not logged in
+      if (!loggedInStatus) {
+        router.push('/'); // Update the path to your login page
+      }
+    } catch (error) {
+      console.error('Error decoding JWT token:', error);
+      // Redirect to login page on decoding error
+      router.push('/'); // Update the path to your login pag
+    }
+  } else {
+    console.error('No session token found.');
+    // Redirect to login page if no session token found
+    router.push('/'); // Update the path to your login pa
+  }
+}, [])
+
   return (
     <section>
       <div className="dash container-fluid">
         <div className="row justify-content-center">
           <div className="col-8">
-            {loggedIn ? (
+            
               <div>
                 {password && password.length > 0 ? (
                   <table className="table-striped table-hover m-0 table border">
@@ -101,13 +138,6 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn, password }) => {
                   </div>
                 )}
               </div>
-            ) : (
-              <div>
-                <a href="/login">
-                  You must log in first to view saved passwords.
-                </a>
-              </div>
-            )}
           </div>
         </div>
       </div>

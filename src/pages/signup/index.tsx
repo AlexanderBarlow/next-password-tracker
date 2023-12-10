@@ -24,6 +24,7 @@ export default function SignupForm() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userName: userName.value,
           password: password.value,
@@ -33,6 +34,8 @@ export default function SignupForm() {
       if (response.ok) {
         // Signup successful, handle the response as needed
         console.log(await response.json());
+        window.location.href = '/dashboard';
+
       } else {
         // Signup failed, handle the error response
         const errorData: unknown = await response.json();

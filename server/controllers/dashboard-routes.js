@@ -5,7 +5,7 @@ const crypto = require('crypto');
 
 router.get('/', async (req, res) => {
     if (!req.session.logged_in) {
-        res.redirect('/login');
+        res.redirect('/');
         return;
     } else {
         Passwords.findAll({
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
         ).then(passwordDB => {
             const password = passwordDB.map(password => password.get({ plain: true }));
             const loggedIn = req.session.logged_in
-            res.render('dashboard', { password, loggedIn });
+           res.status(200).json(password, loggedIn);
         }).catch(err => {
             console.log(err);
             res.status(500).json(err);
