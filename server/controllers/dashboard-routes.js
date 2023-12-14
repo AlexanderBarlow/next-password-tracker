@@ -90,46 +90,71 @@ router.post('/new', async (req, res) => {
     }
 });
 
-router.get('/copy/:id', (req, res) => {
-  const sessionToken = req.headers.authorization?.split(' ')[1];
+router.get("/copy/:id", (req, res) => {
+  const sessionToken = req.headers.authorization?.split(" ")[1];
 
   if (!sessionToken) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
     // Decode the JWT
-    const decodedToken = jwt.verify(sessionToken, '123');
+    const decodedToken = jwt.verify(sessionToken, "123");
 
     // Check if the user is logged in
     if (!decodedToken.logged_in) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     // Now you have access to req.session.user_id
     const user_id = decodedToken.user_id;
 
     // Continue with your existing logic
-    Passwords.findAll({
+    Passwords.findOne({
       where: { user_id: user_id, id: req.params.id },
-      attributes: ['id', 'username', 'user_id', 'password', 'title', 'initVector', 'securityKey']
-    }).then(passwordDB => {
-      const password = passwordDB.map(password => password.get({ plain: true }));
-      const securityKey = Buffer.from(password[0].securityKey, 'hex');
-      const initVector = Buffer.from(password[0].initVector, 'hex');
-      const encryptedData = password[0].password;
-      const algorithm = "aes-256-cbc";
-      // the decipher function
-      const decipher = crypto.createDecipheriv(algorithm, securityKey, initVector);
-      let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
-      decryptedData += decipher.final("utf8");
-      res.json({ decryptedData });
-    });
+      attributes: [
+        "id",
+        "username",
+        "user_id",
+        "password",
+        "title",
+        "initVector",
+        "securityKey",
+      ],
+    })
+      .then((passwordDB) => {
+        if (!passwordDB) {
+          // Password not found
+          return res.status(404).json({ error: "Password not found" });
+        }
+
+        const password = passwordDB.get({ plain: true });
+        const securityKey = Buffer.from(password.securityKey, "hex");
+        const initVector = Buffer.from(password.initVector, "hex");
+        const encryptedData = password.password;
+        const algorithm = "aes-256-cbc";
+
+        // The decipher function
+        const decipher = crypto.createDecipheriv(
+          algorithm,
+          securityKey,
+          initVector
+        );
+        let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
+        decryptedData += decipher.final("utf8");
+
+        // Send the decrypted data in the response
+        res.json({ decryptedData });
+      })
+      .catch((error) => {
+        // Handle any database-related errors
+        console.error("Error during database query:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      });
   } catch (error) {
-    console.error('Error during JWT verification:', error);
-    res.status(401).json({ error: 'Unauthorized' });
+    // Handle JWT verification errors
+    console.error("Error during JWT verification:", error);
+    res.status(401).json({ error: "Unauthorized" });
   }
 });
 
