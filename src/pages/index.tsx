@@ -13,52 +13,43 @@ interface PasswordState {
 
 const Login: React.FC = () => {
   const router = useRouter();
- const [username, setUserName] = useState<UsernameState>({ value: '' });
+  const [username, setUserName] = useState<UsernameState>({ value: '' });
   const [password, setPassword] = useState<PasswordState>({ value: '' });
 
- const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  if (username && password) {
-    console.log(username.value, password.value);
-  try {
-    const response = await fetch("http://localhost:3001/api/users/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        
-      },
-      credentials: 'include',
-      body: JSON.stringify({ 
-          userName: username.value,
-          password: password.value,
-         }),
-    });
+    if (username && password) {
+      try {
+        const response = await fetch("http://localhost:3001/api/users/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            userName: username.value,
+            password: password.value,
+          }),
+        });
 
-    if (response.ok) {
-      const responseData = await response.json();
-
-      // Assuming responseData includes the user and message properties
-      const { user, message } = responseData;
-
-      // Redirect to the dashboard
-      window.location.href = '/dashboard';
-    } else {
-      // Handle specific status codes or display a generic message
-      if (response.status === 401) {
-        alert("Invalid Login Attempt");
-      } else {
-        alert("Login Failed");
+        if (response.ok) {
+          const responseData = await response.json();
+          const { user, message } = responseData;
+          window.location.href = '/dashboard';
+        } else {
+          if (response.status === 401) {
+            alert("Invalid Login Attempt");
+          } else {
+            alert("Login Failed");
+          }
+        }
+      } catch (error) {
+        console.error("Error during login:", error);
+        alert("An error occurred during login");
       }
     }
-  } catch (error) {
-    console.error("Error during login:", error);
-    // Handle fetch errors (network issues, server unreachable, etc.)
-    alert("An error occurred during login");
   }
-}
-}
-
 
   return (
     <section className="container-fluid">

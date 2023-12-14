@@ -13,11 +13,12 @@ export default function SignupForm() {
   const [userName, setUserName] = useState<UsernameState>({ value: '' });
   const [password, setPassword] = useState<PasswordState>({ value: '' });
 
-  const handleSignup = async () => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     console.log(userName.value);
     console.log(password.value);
-    
-    
+
     try {
       const response: Response = await fetch('http://localhost:3001/api/users/', {
         method: 'POST',
@@ -33,9 +34,8 @@ export default function SignupForm() {
 
       if (response.ok) {
         // Signup successful, handle the response as needed
-        console.log(await response.json());
+        const responseData = await response.json();
         window.location.href = '/dashboard';
-
       } else {
         // Signup failed, handle the error response
         const errorData: unknown = await response.json();
@@ -51,10 +51,10 @@ export default function SignupForm() {
       <section className="row justify-content-center">
         <section className="col-3 align-self-center rounded border bg-white p-5">
           <h2>Signup</h2>
-          <form className="signUpForm">
+          <form className="signUpForm" onSubmit={handleSignup}>
             <div className="mb-3">
               <label className="form-label" htmlFor="userName">
-                Username:
+                Username
               </label>
               <input
                 type="text"
@@ -66,7 +66,7 @@ export default function SignupForm() {
             </div>
             <div className="mb-3">
               <label htmlFor="password" className="form-label">
-                Password:
+                Password
               </label>
               <input
                 type="password"
@@ -76,11 +76,7 @@ export default function SignupForm() {
                 onChange={(e) => setPassword({ value: e.target.value })}
               />
             </div>
-            <button
-              type="button"
-              onClick={handleSignup}
-              className="btn btn-danger"
-            >
+            <button type="submit" className="btn btn-danger">
               Sign Up
             </button>
             <p className="text-secondary mb-0 pt-3">

@@ -2,24 +2,42 @@ const router = require('express').Router();
 const sequelize = require('../config/connection');
 const { Passwords } = require('../models');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
 router.get('/', async (req, res) => {
-    if (!req.session.logged_in) {
-        res.redirect('/');
-        return;
-    } else {
-        Passwords.findAll({
-            where: { user_id: req.session.user_id },
-            attributes: ['id', 'username', 'user_id', 'password', 'title', 'initVector', 'securityKey']
+    try {
+        // Get the JWT token from the Authorization header
+        const token = req.headers.authorization?.split(' ')[1];
+
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized' });
         }
-        ).then(passwordDB => {
-            const password = passwordDB.map(password => password.get({ plain: true }));
-            const loggedIn = req.session.logged_in
-           res.status(200).json(password, loggedIn);
-        }).catch(err => {
-            console.log(err);
-            res.status(500).json(err);
-        });
+
+        // Decode the token to get user_id
+        const decodedToken = jwt.verify(token, '123'); // Replace 'your-secret-key' with your actual secret key
+
+        // Use the decoded user_id in your query
+        const user_id = decodedToken.user_id;
+
+        if (!req.session.logged_in) {
+            res.redirect('/');
+            return;
+        } else {
+            Passwords.findAll({
+                where: { user_id: user_id },
+                attributes: ['id', 'username', 'user_id', 'password', 'title', 'initVector', 'securityKey']
+            }).then(passwordDB => {
+                const password = passwordDB.map(password => password.get({ plain: true }));
+                const loggedIn = req.session.logged_in;
+                res.status(200).json({ password });
+            }).catch(err => {
+                console.log(err);
+                res.status(500).json(err);
+            });
+        }
+    } catch (error) {
+        console.error('Error decoding JWT token:', error);
+        res.status(401).json({ error: 'Unauthorized' });
     }
 });
 
@@ -73,27 +91,46 @@ router.post('/new', async (req, res) => {
 });
 
 router.get('/copy/:id', (req, res) => {
-    if (!req.session.logged_in) {
-        res.redirect('/login');
-        return;
-    } else {
-        Passwords.findAll({
-            where: { user_id: req.session.user_id, id: req.params.id },
-            attributes: ['id', 'username', 'user_id', 'password', 'title', 'initVector', 'securityKey']
-        }
-        ).then(passwordDB => {
-            const password = passwordDB.map(password => password.get({ plain: true }));
-            const securityKey = Buffer.from(password[0].securityKey, 'hex');
-            const initVector = Buffer.from(password[0].initVector, 'hex');
-            const encryptedData = password[0].password;
-            const algorithm = "aes-256-cbc";
-            // the decipher function
-            const decipher = crypto.createDecipheriv(algorithm, securityKey, initVector);
-            let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
-            decryptedData += decipher.final("utf8");
-            res.json(decryptedData)
-        })
+  const sessionToken = req.headers.authorization?.split(' ')[1];
+
+  if (!sessionToken) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  try {
+    // Decode the JWT
+    const decodedToken = jwt.verify(sessionToken, '123');
+
+    // Check if the user is logged in
+    if (!decodedToken.logged_in) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
     }
+
+    // Now you have access to req.session.user_id
+    const user_id = decodedToken.user_id;
+
+    // Continue with your existing logic
+    Passwords.findAll({
+      where: { user_id: user_id, id: req.params.id },
+      attributes: ['id', 'username', 'user_id', 'password', 'title', 'initVector', 'securityKey']
+    }).then(passwordDB => {
+      const password = passwordDB.map(password => password.get({ plain: true }));
+      const securityKey = Buffer.from(password[0].securityKey, 'hex');
+      const initVector = Buffer.from(password[0].initVector, 'hex');
+      const encryptedData = password[0].password;
+      const algorithm = "aes-256-cbc";
+      // the decipher function
+      const decipher = crypto.createDecipheriv(algorithm, securityKey, initVector);
+      let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
+      decryptedData += decipher.final("utf8");
+      res.json({ decryptedData });
+    });
+  } catch (error) {
+    console.error('Error during JWT verification:', error);
+    res.status(401).json({ error: 'Unauthorized' });
+  }
 });
 
 module.exports = router;
