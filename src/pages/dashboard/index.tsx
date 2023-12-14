@@ -5,7 +5,7 @@ import { getSession } from 'next-auth/react';
 import type { NextApiRequest, NextApiResponse } from "next";
 import Cookies from 'js-cookie';
 import jwt from 'jsonwebtoken';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 interface Password {
   id: number;
   title: string;
@@ -19,36 +19,52 @@ interface DashboardProps {
 }
 
 const Dashboard: NextPage<DashboardProps> = ({ loggedIn, password }) => {
+  const [issue, setAlert] = useState(false)
   const router = useRouter();
 
-useEffect(() => {
-  const sessionToken = Cookies.get('sessionToken');
-  console.log(sessionToken);
+  useEffect(() => {
+    const sessionToken = Cookies.get('sessionToken');
+    console.log(sessionToken);
 
-  if (sessionToken) {
-    try {
-      // Decode the JWT token (no verification)
-      const decodedToken = jwt.decode(sessionToken);
-      console.log(decodedToken);
-      const loggedInStatus = decodedToken.logged_in;
-      console.log(loggedInStatus);
+    if (sessionToken) {
+      try {
+        // Decode the JWT token (no verification)
+        const decodedToken = jwt.decode(sessionToken);
+        console.log(decodedToken);
+        const loggedInStatus = decodedToken.logged_in;
+        console.log(loggedInStatus);
 
-      // Redirect to login page if not logged in
-      if (!loggedInStatus) {
-        router.push('/'); // Update the path to your login page
+        // Redirect to login page if not logged in
+        if (!loggedInStatus) {
+          alert('You must login to continue.');
+          setAlert(true);
+          // Use setTimeout to delay the redirection and allow the user to see the alert
+          setTimeout(() => router.push('/'), 2000); // Adjust the delay as needed
+        }
+      } catch (error) {
+        console.error('Error decoding JWT token:', error);
+        alert('You must login to continue.');
+        setAlert(true);
+        // Use setTimeout to delay the redirection and allow the user to see the alert
+        setTimeout(() => router.push('/'), 2000); // Adjust the delay as needed
       }
-    } catch (error) {
-      console.error('Error decoding JWT token:', error);
-      // Redirect to login page on decoding error
-      router.push('/'); // Update the path to your login pag
+    } else {
+      console.error('No session token found.');
+      alert('You must login to continue.');
+      setAlert(true);
+      // Use setTimeout to delay the redirection and allow the user to see the alert
+      setTimeout(() => router.push('/'), 2000); // Adjust the delay as needed
     }
-  } else {
-    console.error('No session token found.');
-    // Redirect to login page if no session token found
-    router.push('/'); // Update the path to your login pa
-  }
-}, [])
+  }, []);
 
+  if(issue === true)
+   { 
+    return (
+      <div>
+        <h1>You Must Login To Access This Page.</h1>
+      </div>
+  )}
+    else if (issue === false){
   return (
     <section>
       <div className="dash container-fluid">
@@ -143,6 +159,7 @@ useEffect(() => {
       </div>
     </section>
   );
+}
 };
 
 export default Dashboard;

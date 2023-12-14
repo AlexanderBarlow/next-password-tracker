@@ -60,31 +60,55 @@ router.post('/', async (req, res) => {
 
 
 router.post('/login', async (req, res) => {
-   
   try {
-    const userData = await User.findOne({ where: { user_name: req.body.username.value } });
+    console.log('Login route hit'); // Log that the route has been hit
+
+    // Log the values of req.body.username and req.body.password
+    console.log('Username:', req.body.userName);
+    console.log('Password:', req.body.password);
+
+    const userData = await User.findOne({ where: { user_name: req.body.userName } });
 
     if (!userData) {
       res.status(400).json({ message: 'Incorrect username or password, please try again' });
       return;
     }
 
-    const validPassword = await userData.isValidPassword(req.body.password.value);
+    const validPassword = await userData.isValidPassword(req.body.password);
     if (!validPassword) {
       res.status(400).json({ message: 'Incorrect username or password, please try again' });
       return;
     }
 
-    req.session.save(() => {
-      req.session.user_id = userData.id;
-      req.session.logged_in = true;
-      res.json({ user: userData, message: 'You are now logged in!' });
-    });
+    console.log('Password:', validPassword);
+    console.log('userData:', userData);
 
+    req.session.user_id = userData.id;
+    req.session.logged_in = true;
+
+    req.session.save(() => {
+      const token = jwt.sign(
+        {
+          user_id: req.session.user_id,
+          user_name: req.body.userName, // Include the username
+          logged_in: req.session.logged_in,
+        },
+        '123', // Replace with a strong and secure secret key
+        {
+          expiresIn: '3h', // Set an expiration time for the token if needed
+        }
+      );
+
+      res
+        .status(200)
+        .cookie('sessionToken', token)
+        .json(userData);
+    });
   } catch (err) {
     res.status(400).json(err);
   }
 });
+
 
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
