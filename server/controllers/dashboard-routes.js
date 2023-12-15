@@ -41,15 +41,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/new', (req, res) => {
-    if (!req.session.logged_in) {
-        res.redirect('/login');
-        return;
-    } else {
-        res.render('new');
-    }
-});
-
 router.get('/update', (req, res) => {
     res.render('update');
 });

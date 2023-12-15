@@ -1,5 +1,11 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import jwt from "jsonwebtoken";
+
+interface Response {
+  status: number;
+}
 
 const UpdatePassword = () => {
   const router = useRouter();
@@ -8,19 +14,58 @@ const UpdatePassword = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  useEffect(() => {
+    // Use an empty string as the default value if Cookies.get("sessionToken") is undefined
+const sessionToken = (Cookies.get("sessionToken") as string) ?? "";
+
+
+
+    try {
+      // Decode the JWT token (no verification)
+      const decodedToken = jwt.decode(sessionToken) as jwt.JwtPayload;
+
+      if (!decodedToken?.logged_in) {
+        console.error("User not logged in.");
+        alert("You must login to continue.");
+        // Redirect to login page or handle accordingly
+        router.replace("/");
+      }
+
+    if (
+      id &&
+      ((typeof id === "string" && !/^\d+$/.test(id)) ||
+        (Array.isArray(id) &&
+          id.length > 0 &&
+          typeof id[0] === "string" &&
+          !/^\d+$/.test(id[0]?.toString())))
+    ) {
+      console.error("Invalid ID parameter.");
+      alert("Invalid ID parameter.");
+      // Redirect to dashboard or handle accordingly
+      router.replace("/dashboard");
+    }
+    } catch (error) {
+      console.error("Error decoding JWT token:", error);
+      alert("An unexpected error occurred.");
+      // Redirect to login page or handle accordingly
+      router.replace("/");
+    }
+  }, [router]);
+
   const updatePassword = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (id) {
-      const response = await fetch(`http://localhost:3001/api/passwords/${id}`, {
-        method: "PUT", // Assuming 'UPDATE' is 'PUT'
+    const response: Response = await fetch(
+      `http://localhost:3001/api/passwords/${id}`,
+      {
+        method: "PUT",
         body: JSON.stringify({ title, username, password }),
         headers: { "Content-Type": "application/json" },
-      });
+      }
+    );
 
-      if (response.ok) {
-        const data = await response.json();
-        
+      if (response.status === 200) {
         router.replace("/dashboard");
       } else {
         alert("Failed to update password");
@@ -39,7 +84,7 @@ const UpdatePassword = () => {
           <form
             className="newPasswordForm"
             onSubmit={updatePassword}
-            data-id={id as string}
+            data-id={id! as string}
           >
             <div className="mb-3">
               <label className="form-label">Website Name</label>

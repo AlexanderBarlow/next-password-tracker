@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Link from "next/link";
+import Cookies from "js-cookie";
+import jwt from "jsonwebtoken";
+import { useRouter } from "next/router";
 
 interface UsernameState {
   value: string;
@@ -10,81 +13,98 @@ interface PasswordState {
 }
 
 export default function SignupForm() {
-  const [userName, setUserName] = useState<UsernameState>({ value: '' });
-  const [password, setPassword] = useState<PasswordState>({ value: '' });
+  const [userName, setUserName] = useState<UsernameState>({ value: "" });
+  const [password, setPassword] = useState<PasswordState>({ value: "" });
+  const router = useRouter();
+
+  const sessionToken = Cookies.get("sessionToken");
+
+  if (sessionToken) {
+    // Decode the JWT token (no verification)
+    const decodedToken = jwt.decode(sessionToken) as jwt.JwtPayload;
+
+    if (decodedToken?.logged_in) {
+      router.push("/dashboard");
+    }
+  }
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(userName.value);
-    console.log(password.value);
-
     try {
-      const response: Response = await fetch('http://localhost:3001/api/users/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          userName: userName.value,
-          password: password.value,
-        }),
-      });
+      const response: Response = await fetch(
+        "http://localhost:3001/api/users/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            userName: userName.value,
+            password: password.value,
+          }),
+        }
+      );
 
       if (response.ok) {
         // Signup successful, handle the response as needed
-        const responseData = await response.json();
-        window.location.href = '/dashboard';
+        window.location.href = "/dashboard";
       } else {
         // Signup failed, handle the error response
         const errorData: unknown = await response.json();
-        console.error('Signup failed:', errorData);
+        console.error("Signup failed:", errorData);
       }
     } catch (error: unknown) {
-      console.error('Signup failed:', error);
+      console.error("Signup failed:", error);
     }
   };
 
   return (
-    <section className="container-fluid">
-      <section className="row justify-content-center">
-        <section className="col-3 align-self-center rounded border bg-white p-5">
-          <h2>Signup</h2>
-          <form className="signUpForm" onSubmit={handleSignup}>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="userName">
-                Username
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="userName"
-                value={userName.value}
-                onChange={(e) => setUserName({ value: e.target.value })}
-              />
+    <section className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5">
+      <section className="col-md-3 rounded blue p-5 border border-dark">
+        <h2 className="text-center darkGreen font-weight-bold">Signup Form</h2>
+        <form className="signUpForm" onSubmit={handleSignup}>
+          <div className="mb-3">
+            <label className="form-label oliveGreen" htmlFor="userName">
+              Username
+            </label>
+            <input
+              type="text"
+              className="form-control darkColor border border-dark yellow"
+              id="userName"
+              value={userName.value}
+              onChange={(e) => setUserName({ value: e.target.value })}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label oliveGreen">
+              Password
+            </label>
+            <input
+              type="password"
+              className="form-control darkColor border border-dark yellow"
+              id="password"
+              value={password.value}
+              onChange={(e) => setPassword({ value: e.target.value })}
+            />
             </div>
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                value={password.value}
-                onChange={(e) => setPassword({ value: e.target.value })}
-              />
-            </div>
-            <button type="submit" className="btn btn-danger">
-              Sign Up
+          <div className="d-flex justify-content-center">
+            <button
+              type="submit"
+              id="signup"
+              className="d-flex align-items-center btn"
+            >
+              <h1 className="bold text-slate-400 yellow">Sign Up</h1>
             </button>
-            <p className="text-secondary mb-0 pt-3">
-              Already have an account? Click here to{' '}
-              <Link href="/">Log In.</Link>
-            </p>
-          </form>
-        </section>
+          </div>
+          <p className="mb-0 pt-3 text-center darkGreen">
+            Already have an account? Click here to{" "}
+            <Link href="/" className="yellow">
+              Log In.
+            </Link>
+          </p>
+        </form>
       </section>
     </section>
   );

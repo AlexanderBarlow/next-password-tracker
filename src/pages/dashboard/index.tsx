@@ -1,11 +1,9 @@
 import type { NextPage } from "next";
-import { NextPageContext } from "next";
 import { useRouter } from "next/router";
-import { getSession } from "next-auth/react";
-import type { NextApiRequest, NextApiResponse } from "next";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
 import { useEffect, useState } from "react";
+import PasswordCard from "components/PasswordCard";
 
 interface Password {
   id: number;
@@ -145,132 +143,74 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
     }
   };
 
- const onDelete = async (id: number) => {
-   const sessionToken = Cookies.get("sessionToken");
+  const onDelete = async (id: number) => {
+    const sessionToken = Cookies.get("sessionToken");
 
-   try {
-     // Assuming you have the id from the button, use it in the DELETE request
-     const response = await fetch(`http://localhost:3001/api/passwords/${id}`, {
-       method: "DELETE",
-       headers: {
-         "Content-Type": "application/json",
-         Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
-       },
-       credentials: "include",
-     });
+    try {
+      // Assuming you have the id from the button, use it in the DELETE request
+      const response = await fetch(
+        `http://localhost:3001/api/passwords/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
+          },
+          credentials: "include",
+        }
+      );
 
-     if (response.ok) {
-       // Remove the deleted password from the state
-       setPasswordData((prevData) => prevData.filter((item) => item.id !== id));
-       alert(`Password with ID ${id} deleted successfully`);
-     } else {
-       // Handle error response
-       const errorData = await response.json(); // Assuming your server sends JSON error messages
-       console.error("Delete failed:", response.statusText, errorData);
-       alert(`Failed to delete: ${errorData.message}`);
-     }
-   } catch (error) {
-     console.error("Error during fetch:", error);
-     alert("An unexpected error occurred.");
-   }
- };
+      if (response.ok) {
+        // Remove the deleted password from the state
+        setPasswordData((prevData) =>
+          prevData.filter((item) => item.id !== id)
+        );
+        alert(`Password with ID ${id} deleted successfully`);
+      } else {
+        // Handle error response
+        const errorData = await response.json(); // Assuming your server sends JSON error messages
+        console.error("Delete failed:", response.statusText, errorData);
+        alert(`Failed to delete: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error("Error during fetch:", error);
+      alert("An unexpected error occurred.");
+    }
+  };
 
-  if (issue === true) {
-    return (
-      <div>
-        <h1>You Must Login To Access This Page.</h1>
-      </div>
-    );
-  } else if (issue === false) {
-    return (
-      <section>
-        <div className="dash container-fluid">
-          <div className="row justify-content-center">
-            <div className="col-8">
-              {passwordData.length > 0 ? (
-                <div>
-                  <table className="table-striped table-hover m-0 table border">
-                    <thead className="thead-dark">
-                      <tr>
-                        <th
-                          className="head bg-danger col-2 text-white"
-                          scope="col"
-                        >
-                          Website
-                        </th>
-                        <th className="bg-danger col-3 text-white" scope="col">
-                          Username
-                        </th>
-                        <th className="bg-danger col-3 text-white" scope="col">
-                          Password
-                        </th>
-                        <th className="bg-danger col-1 text-white" scope="col">
-                          Update
-                        </th>
-                        <th
-                          className="head-2 bg-danger col-1 text-white"
-                          scope="col"
-                        >
-                          Delete
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {passwordData.map((item) => (
-                        <tr key={item.id} className="buttonList">
-                          <td className="web">{item.title}</td>
-                          <td className="name">{item.username}</td>
-                          <td className="password">
-                            <a className="password-link">
-                              ●●●●●●●●
-                              <button
-                                className="btn btn-danger Copy ms-3"
-                                data-id={item.id}
-                                onClick={() => onCopy(item.id)}
-                              >
-                                Copy
-                              </button>
-                            </a>
-                          </td>
-                          <td className="updateB">
-                            <a
-                              href={`/${item.id}`}
-                              className="btn btn-danger update ms-3"
-                            >
-                              Update
-                            </a>
-                          </td>
-                          <td className="deleteB">
-                            <button
-                              data-id={item.id}
-                              className="btn btn-danger delete ms-3"
-                              onClick={() => onDelete(item.id)}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div>
-                  <p>Your dashboard is empty.</p>
-                </div>
-              )}
-              <a
-                className="btn btn-danger text-align-center"
-                href="/addpassword"
-              >
-                Add Password
-              </a>
+  return (
+    <section className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5">
+      <div className="col-md-6 rounded blue p-5 border border-dark">
+        <h2 className="text-center darkGreen font-weight-bold mb-4">
+          Dashboard
+        </h2>
+        {issue ? (
+          <div>
+            <h1>You Must Login To Access This Page.</h1>
+          </div>
+        ) : passwordData && passwordData.length > 0 ? (
+          <div className="dash row row-cols-1 row-cols-md-3 g-4">
+            {passwordData.map((item) => (
+              <div key={item.id} className="col mb-3">
+                <PasswordCard item={item} onCopy={onCopy} onDelete={onDelete} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="d-flex justify-content-center align-items-center flex-column">
+            <div className="text-center mb-4">
+              <p className="oliveGreen">Your dashboard is empty.</p>
             </div>
           </div>
+        )}
+        <div>
+          <a href="/addpassword" className="d-flex justify-content-center">
+            <button className="btn yellow">Add Password</button>
+          </a>
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
 };
 
 export default Dashboard;

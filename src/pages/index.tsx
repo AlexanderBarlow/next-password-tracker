@@ -1,7 +1,9 @@
 import React from "react";
 import { useState } from "react";
-import { useRouter } from "next/router";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import jwt from "jsonwebtoken";
+import Cookies from "js-cookie";
 
 interface UsernameState {
   value: string;
@@ -12,9 +14,21 @@ interface PasswordState {
 }
 
 const Login: React.FC = () => {
-  const router = useRouter();
   const [username, setUserName] = useState<UsernameState>({ value: '' });
   const [password, setPassword] = useState<PasswordState>({ value: '' });
+
+  const router = useRouter();
+
+  const sessionToken = Cookies.get("sessionToken");
+
+  if (sessionToken) {
+    // Decode the JWT token (no verification)
+    const decodedToken = jwt.decode(sessionToken) as jwt.JwtPayload;
+
+    if (decodedToken && decodedToken.logged_in) {
+      router.push("/dashboard");
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,46 +66,50 @@ const Login: React.FC = () => {
   }
 
   return (
-    <section className="container-fluid">
-      <section className="row justify-content-center">
-        <section className="col-3 align-self-center rounded border bg-white p-5">
-          <h2>Login</h2>
-          <form className="loginForm" onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="username" className="form-label">
-                Username
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="username"
-                name="username"
-                value={username.value}
-                onChange={(e) => setUserName({ value: e.target.value })}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                name="password"
-                value={password.value}
-                onChange={(e) => setPassword({ value: e.target.value })}
-              />
-            </div>
-            <button type="submit" className="btn btn-danger" id="login">
-              Log In
+    <section className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5">
+      <section className="col-md-3 rounded blue p-5 border border-dark">
+        <h2 className="text-center darkGreen font-weight-bold">Login Form</h2>
+        <form className="loginForm" onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="username" className="form-label oliveGreen">
+              Username
+            </label>
+            <input
+              type="text"
+              className="form-control darkColor border border-dark yellow"
+              id="username"
+              name="username"
+              value={username.value}
+              onChange={(e) => setUserName({ value: e.target.value })}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label oliveGreen">
+              Password
+            </label>
+            <input
+              type="password"
+              className="form-control darkColor border border-dark yellow"
+              id="password"
+              name="password"
+              value={password.value}
+              onChange={(e) => setPassword({ value: e.target.value })}
+            />
+          </div>
+          <div className="d-flex justify-content-center">
+            <button
+              type="submit"
+              id="login"
+              className="d-flex align-items-center btn"
+            >
+              <h1 className="bold text-slate-400 yellow">Log In</h1>
             </button>
-            <p className="text-secondary mb-0 pt-3">
-              Don't have an account? Click here to{" "}
-              <Link href="/signup">Sign Up.</Link>
-            </p>
-          </form>
-        </section>
+          </div>
+          <p className="mb-0 pt-3 text-center darkGreen">
+            Don't have an account? Click here to{" "}
+            <Link href="/signup" className="yellow">Sign Up.</Link>
+          </p>
+        </form>
       </section>
     </section>
   );

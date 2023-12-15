@@ -24,25 +24,6 @@ router.get('/password', (req, res) => {
   res.render('password');
 });
 
-// Login
-router.get('/login', (req, res) => {
-  if (req.session.logged_in) {
-    res.redirect('/dashboard');
-    return;
-  } else {
-    res.render('login');
-  }
-});
-
-// sign up input
-router.get('/signup', (req, res) => {
-  if (req.session.logged_in) {
-    res.redirect('/dashboard');
-    return;
-  } else {
-    res.render('signup');
-  }
-});
 
 // create user
 router.post('/createuser', async (req, res) => {

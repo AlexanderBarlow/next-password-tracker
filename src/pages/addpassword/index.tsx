@@ -41,48 +41,50 @@ const NewPassword: React.FC = () => {
   };
 
   return (
-    <section className="container-fluid">
-      <section className="row justify-content-center">
-        <section className="col-3 p-5 bg-white border rounded align-self-center">
-          <h2>New Password</h2>
-          <p className="text-secondary">Add a new password and information about the account it belongs to.</p>
-          <form className="newPasswordForm" onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label">Website Name</label>
-              <input
-                type="text"
-                className="form-control"
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Username</label>
-              <input
-                type="text"
-                className="form-control"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary" id="addPass">
+    <section className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5">
+      <div className="col-md-3 rounded blue p-5 border border-dark">
+        <h2 className="text-center darkGreen font-weight-bold">New Password</h2>
+        <p className="text-secondary text-center">
+          Add a new password and information about the account it belongs to.
+        </p>
+        <form className="newPasswordForm" onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label oliveGreen">Website Name</label>
+            <input
+              type="text"
+              className="form-control darkColor border border-dark yellow"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label oliveGreen">Username</label>
+            <input
+              type="text"
+              className="form-control darkColor border border-dark yellow"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label oliveGreen">Password</label>
+            <input
+              type="password"
+              className="form-control darkColor border border-dark yellow"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className="d-flex justify-content-center">
+            <button type="submit" className="btn yellow darkColor" id="addPass">
               Add Password
             </button>
-          </form>
-        </section>
-      </section>
+          </div>
+        </form>
+      </div>
     </section>
   );
 };
