@@ -49,14 +49,28 @@ export default function SignupForm() {
 
       if (response.ok) {
         // Signup successful, handle the response as needed
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
       } else {
         // Signup failed, handle the error response
         const errorData: unknown = await response.json();
-        console.error("Signup failed:", errorData);
+        if (errorData.original && errorData.original.sqlMessage) {
+          const errorMessage = errorData.original.sqlMessage;
+          console.log(errorMessage)
+
+          if (errorMessage.includes("Duplicate")) {
+            alert("User with this name already exists.");
+          } else {
+            // Handle other errors or show a generic message
+            alert("Signup failed. Please try again.");
+          }
+        } else {
+          // Handle other errors or show a generic message
+          alert("Signup failed. Please try again.");
+        }
       }
     } catch (error: unknown) {
       console.error("Signup failed:", error);
+      alert("Signup failed. Please try again.");
     }
   };
 

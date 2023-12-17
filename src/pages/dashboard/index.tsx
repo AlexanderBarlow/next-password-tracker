@@ -1,9 +1,10 @@
-import type { NextPage } from "next";
+import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
 import { useEffect, useState } from "react";
 import PasswordCard from "components/PasswordCard";
+import { signOut } from 'next-auth/react';
 
 interface Password {
   id: number;
@@ -13,97 +14,66 @@ interface Password {
 
 interface DashboardProps {
   loggedIn: boolean;
-  passwordData: Password[]; // Change the variable name to passwordData
-  sess: any;
-}
-
-interface PasswordData {
-  id: number;
-  title: string;
-  username: string;
-}
-
-interface DashboardProps {
-  loggedIn: boolean;
-  passwordData: PasswordData[];
-  sess: any; // Adjust this type based on your actual session data type
+  passwordData: Password[];
 }
 
 const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
   const [issue, setAlert] = useState(false);
-  const [passwordData, setPasswordData] = useState<PasswordData[]>([]);
   const [isAdmin, setAdmin] = useState(false);
+  const [passwordData, setPasswordData] = useState<PasswordData[]>([]);
+  const [allPasswords, setAllPasswords] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
-    const sessionToken = Cookies.get("sessionToken");
+    const fetchUserData = async () => {
+      const sessionToken = Cookies.get("sessionToken");
 
-    if (sessionToken) {
-      try {
-        // Decode the JWT token (no verification)
-        const decodedToken = jwt.decode(sessionToken) as jwt.JwtPayload;
+      if (sessionToken) {
+        try {
+          const decodedToken = jwt.decode(sessionToken) as jwt.JwtPayload;
 
-        if (decodedToken && decodedToken.logged_in) {
-          setAlert(false);
+          if (decodedToken && decodedToken.logged_in) {
+            setAlert(false);
+
+            if (decodedToken.user_name === "Admin") {
+              setAdmin(true);
+              const response = await fetch("http://localhost:3001/", {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${sessionToken}`,
+                },
+                credentials: "include",
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                setAllPasswords(data);
+              } else {
+                console.error("Fetch failed:", response.statusText);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error decoding JWT token:", error);
+          alert("You must login to continue.");
+          setAlert(true);
+          // Use setTimeout to delay the redirection and allow the user to see the alert
+          setTimeout(() => router.push("/"), 2000);
         }
-
-        if (decodedToken.user_name === "Admin") {
-          setAdmin(true);
-        }
-      } catch (error) {
-        console.error("Error decoding JWT token:", error);
+      } else {
+        console.error("No session token found.");
         alert("You must login to continue.");
         setAlert(true);
         // Use setTimeout to delay the redirection and allow the user to see the alert
         setTimeout(() => router.push("/"), 2000);
       }
-    } else {
-      console.error("No session token found.");
-      alert("You must login to continue.");
-      setAlert(true);
-      // Use setTimeout to delay the redirection and allow the user to see the alert
-      setTimeout(() => router.push("/"), 2000);
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Get the session token from cookies
-        const sessionToken = Cookies.get("sessionToken");
-
-        if (sessionToken) {
-          const response = await fetch("http://localhost:3001/dashboard/", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
-            },
-            credentials: "include",
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setPasswordData(data.password);
-            // Handle the data as needed
-          } else {
-            // Handle error response
-            console.error("Fetch failed:", response.statusText);
-          }
-        } else {
-          console.error("No session token found.");
-        }
-      } catch (error) {
-        console.error("Error during fetch:", error);
-      }
     };
 
-    fetchData();
+    fetchUserData();
   }, []);
 
   const onCopy = async (id: number) => {
-    // Grab the id from the copy button that was pressed
-    // Get the password from the array with the id
     const copiedData = passwordData.find((item) => item.id === id);
 
     if (copiedData) {
@@ -116,7 +86,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
+              Authorization: `Bearer ${sessionToken}`,
             },
             credentials: "include",
           }
@@ -124,10 +94,9 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
 
         if (response.ok) {
           const data = await response.json();
-          const decryptedPasswword = data.decryptedData;
+          const decryptedPassword = data.decryptedData;
 
-          // Use data as needed
-          navigator.clipboard.writeText(decryptedPasswword).then(
+          navigator.clipboard.writeText(decryptedPassword).then(
             function () {
               alert("Copying to clipboard was successful!");
             },
@@ -136,8 +105,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
             }
           );
         } else {
-          // Handle error response
-          const errorData = await response.json(); // Assuming your server sends JSON error messages
+          const errorData = await response.json();
           console.error("Fetch failed:", response.statusText, errorData);
           alert(`Failed to copy: ${errorData.message}`);
         }
@@ -152,28 +120,25 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
     const sessionToken = Cookies.get("sessionToken");
 
     try {
-      // Assuming you have the id from the button, use it in the DELETE request
       const response = await fetch(
         `http://localhost:3001/api/passwords/${id}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
+            Authorization: `Bearer ${sessionToken}`,
           },
           credentials: "include",
         }
       );
 
       if (response.ok) {
-        // Remove the deleted password from the state
         setPasswordData((prevData) =>
           prevData.filter((item) => item.id !== id)
         );
         alert(`Password with ID ${id} deleted successfully`);
       } else {
-        // Handle error response
-        const errorData = await response.json(); // Assuming your server sends JSON error messages
+        const errorData = await response.json();
         console.error("Delete failed:", response.statusText, errorData);
         alert(`Failed to delete: ${errorData.message}`);
       }
@@ -183,14 +148,95 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
     }
   };
 
+  const [revealedPasswordId, setRevealedPasswordId] = useState<number | null>(
+    null
+  );
+
+  // Event handler for mouse down
+  const handleMouseDown = (event: React.MouseEvent, id: number) => {
+    if (event.button === 0) {
+      setRevealedPasswordId(id);
+    }
+  };
+
+  // Event handler for mouse up
+  const handleMouseUp = () => {
+    setRevealedPasswordId(null);
+  };
+
+ const updateUserPassword = async (userId: number) => {
+   try {
+     // Assuming you have a state variable for the new password, replace 'newPassword' with your state variable
+     const newPassword = prompt("Enter the new password:");
+
+     if (!newPassword) {
+       // User canceled the operation
+       return;
+     }
+
+     const sessionToken = Cookies.get("sessionToken");
+
+     const response = await fetch("http://localhost:3001/api/users/updatep", {
+       method: "PUT",
+       headers: {
+         "Content-Type": "application/json",
+         Authorization: `Bearer ${sessionToken}`,
+       },
+       credentials: "include",
+       body: JSON.stringify({
+         id: userId,
+         newPassword: newPassword,
+       }),
+     });
+
+     if (response.ok) {
+       alert("Password updated successfully!");
+     } else {
+       const errorData = await response.json();
+       console.error("Update failed:", response.statusText, errorData);
+       alert(`Failed to update password: ${errorData.message}`);
+     }
+   } catch (error) {
+     console.error("Error during fetch:", error);
+     alert("An unexpected error occurred.");
+   }
+ };
+
+
+
   return (
-    <section className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5">
-      <div className="col-md-6 rounded blue p-5 border border-dark">
+    <section
+      className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5"
+      onMouseUp={handleMouseUp}
+    >
+      <div className="col-md-6 rounded blue p-5 border border-dark text-center">
         {isAdmin ? (
-          // Render specific content for admin
           <div>
-            <h1>Welcome Admin!</h1>
-            {/* Add additional admin-specific content here */}
+            <h1 className="darkGreen mb-2">Welcome Admin!</h1>
+            {allPasswords.map((item) => (
+              <div
+                key={item.id}
+                onMouseDown={(e) => handleMouseDown(e, item.id)}
+                className="mb-3 p-3 border"
+              >
+                <p className="darkGreen">Username: {item.user_name}</p>
+                <p className="oliveGreen">ID: {item.id}</p>
+                {/* Conditionally show or hide password based on revealedPasswordId */}
+                <p className="yellow">
+                  Password:{" "}
+                  {revealedPasswordId === item.id
+                    ? item.user_password
+                    : "********"}
+                </p>
+                <button
+                  data-id={item.id}
+                  className="darkGreen"
+                  onClick={() => updateUserPassword(item.id)}
+                >
+                  Update Password
+                </button>
+              </div>
+            ))}
           </div>
         ) : (
           <>

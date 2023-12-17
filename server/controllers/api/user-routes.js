@@ -109,6 +109,40 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.put("/updatep", async (req, res) => {
+  try {
+    // Extract id and new password from the request body
+    const { id, newPassword } = req.body;
+
+    // Validate that both id and newPassword are present
+    if (!id || !newPassword) {
+      return res
+        .status(400)
+        .json({ error: "Invalid request. Please provide id and newPassword." });
+    }
+
+    // Find the user by id
+    const user = await User.findByPk(id);
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    await user.update({ user_password: hashedPassword });
+
+    // Send a success response
+    res.json({ message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Error during password update:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
