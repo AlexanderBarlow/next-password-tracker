@@ -1,8 +1,9 @@
 const { User } = require("../models");
+require("dotenv").config();
 
 const seedUser = {
-  user_name: "Admin",
-  user_password: "AdminPassword!",
+  user_name: process.env.ADMIN_USER,
+  user_password: process.env.ADMIN_PASSWORD,
 };
 
 const seedUsers = async () => {
