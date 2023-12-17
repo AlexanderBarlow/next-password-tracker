@@ -32,6 +32,7 @@ interface DashboardProps {
 const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
   const [issue, setAlert] = useState(false);
   const [passwordData, setPasswordData] = useState<PasswordData[]>([]);
+  const [isAdmin, setAdmin] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -44,6 +45,10 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
 
         if (decodedToken && decodedToken.logged_in) {
           setAlert(false);
+        }
+
+        if (decodedToken.user_name === "Admin") {
+          setAdmin(true);
         }
       } catch (error) {
         console.error("Error decoding JWT token:", error);
@@ -181,33 +186,52 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
   return (
     <section className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5">
       <div className="col-md-6 rounded blue p-5 border border-dark">
-        <h2 className="text-center darkGreen font-weight-bold mb-4">
-          Dashboard
-        </h2>
-        {issue ? (
+        {isAdmin ? (
+          // Render specific content for admin
           <div>
-            <h1>You Must Login To Access This Page.</h1>
-          </div>
-        ) : passwordData && passwordData.length > 0 ? (
-          <div className="dash row row-cols-1 row-cols-md-3 g-4">
-            {passwordData.map((item) => (
-              <div key={item.id} className="col mb-3">
-                <PasswordCard item={item} onCopy={onCopy} onDelete={onDelete} />
-              </div>
-            ))}
+            <h1>Welcome Admin!</h1>
+            {/* Add additional admin-specific content here */}
           </div>
         ) : (
-          <div className="d-flex justify-content-center align-items-center flex-column">
-            <div className="text-center mb-4">
-              <p className="oliveGreen">Your dashboard is empty.</p>
-            </div>
-          </div>
+          <>
+            <h2 className="text-center darkGreen font-weight-bold mb-4">
+              Dashboard
+            </h2>
+            {issue ? (
+              <div>
+                <h1>You Must Login To Access This Page.</h1>
+              </div>
+            ) : passwordData && passwordData.length > 0 ? (
+              <div className="dash row row-cols-1 row-cols-md-3 g-4">
+                {passwordData.map((item) => (
+                  <div key={item.id} className="col mb-3">
+                    <PasswordCard
+                      item={item}
+                      onCopy={onCopy}
+                      onDelete={onDelete}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="d-flex justify-content-center align-items-center flex-column">
+                <div className="text-center mb-4">
+                  <p className="oliveGreen">Your dashboard is empty.</p>
+                </div>
+              </div>
+            )}
+            {!isAdmin && (
+              <div>
+                <a
+                  href="/addpassword"
+                  className="d-flex justify-content-center"
+                >
+                  <button className="btn yellow">Add Password</button>
+                </a>
+              </div>
+            )}
+          </>
         )}
-        <div>
-          <a href="/addpassword" className="d-flex justify-content-center">
-            <button className="btn yellow">Add Password</button>
-          </a>
-        </div>
       </div>
     </section>
   );
