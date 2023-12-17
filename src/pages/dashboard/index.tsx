@@ -116,6 +116,41 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
     }
   };
 
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          // Get the session token from cookies
+          const sessionToken = Cookies.get("sessionToken");
+
+          if (sessionToken) {
+            const response = await fetch("http://localhost:3001/dashboard/", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
+              },
+              credentials: "include",
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              setPasswordData(data.password);
+              // Handle the data as needed
+            } else {
+              // Handle error response
+              console.error("Fetch failed:", response.statusText);
+            }
+          } else {
+            console.error("No session token found.");
+          }
+        } catch (error) {
+          console.error("Error during fetch:", error);
+        }
+      };
+
+      fetchData();
+    }, []);
+
   const onDelete = async (id: number) => {
     const sessionToken = Cookies.get("sessionToken");
 
@@ -202,7 +237,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
    }
  };
 
-
+ console.log(passwordData)
 
   return (
     <section
