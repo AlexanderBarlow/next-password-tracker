@@ -2,7 +2,6 @@
   "name": "react-password-tracker-server",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "server": "nodemon server/server",
     "dev": "concurrently \"npm run server\" \"cd src && npm run dev\"",
