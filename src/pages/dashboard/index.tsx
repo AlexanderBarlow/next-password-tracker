@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
 import { useEffect, useState } from "react";
-import PasswordCard from "components/PasswordCard";
+import PasswordCard from "../../components/PasswordCard";
 
 interface Password {
   id: number;
