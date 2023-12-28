@@ -8,7 +8,7 @@
     "dev": "concurrently \"npm run server\" \"cd src && npm run dev\"",
     "depend": "npm install && cd src && npm install && cd ../server && npm install",
     "seed": "cd server/seeds && node index",
-    "build": "cd src && npm run build"
+    "build": "next build"
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.7.1",
