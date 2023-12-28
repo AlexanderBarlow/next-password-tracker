@@ -12,6 +12,26 @@ interface PasswordState {
   value: string;
 }
 
+// Define a type for the expected error structure
+interface ErrorResponse {
+  original: {
+    sqlMessage: string;
+  };
+}
+
+// Type guard to check if the object has the expected structure
+function isErrorResponse(data: unknown): data is ErrorResponse {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "original" in data &&
+    typeof (data as ErrorResponse).original === "object" &&
+    (data as ErrorResponse).original !== null &&
+    "sqlMessage" in (data as ErrorResponse).original &&
+    typeof (data as ErrorResponse).original.sqlMessage === "string"
+  );
+}
+
 export default function SignupForm() {
   const [userName, setUserName] = useState<UsernameState>({ value: "" });
   const [password, setPassword] = useState<PasswordState>({ value: "" });
@@ -53,9 +73,11 @@ export default function SignupForm() {
       } else {
         // Signup failed, handle the error response
         const errorData: unknown = await response.json();
-        if (errorData.original && errorData.original.sqlMessage) {
+
+        // Check if the errorData has the expected structure
+        if (isErrorResponse(errorData)) {
           const errorMessage = errorData.original.sqlMessage;
-          console.log(errorMessage)
+          console.log(errorMessage);
 
           if (errorMessage.includes("Duplicate")) {
             alert("User with this name already exists.");
@@ -102,7 +124,7 @@ export default function SignupForm() {
               value={password.value}
               onChange={(e) => setPassword({ value: e.target.value })}
             />
-            </div>
+          </div>
           <div className="d-flex justify-content-center">
             <button
               type="submit"

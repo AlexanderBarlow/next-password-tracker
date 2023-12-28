@@ -4,8 +4,9 @@ import React from "react";
 interface PasswordCardProps {
   item: {
     id: number;
-    title: string;
-    username: string;
+    title?: string;
+    user_name?: string;
+    user_password?: string
   };
   onCopy: (id: number) => void;
   onDelete: (id: number) => void;
@@ -19,7 +20,7 @@ const PasswordCard: React.FC<PasswordCardProps> = ({
   <div className="card darkColor mb-3" style={{ width: "fit-content" }}>
     <div className="card-body">
       <h5 className="card-title darkGreen">{item.title}</h5>
-      <p className="card-text oliveGreen">{item.username}</p>
+      <p className="card-text oliveGreen">{item.user_name}</p>
       <div className="d-flex align-items-center justify-content-center">
         <span className="password-link">●●●●●●●●</span>
         <button

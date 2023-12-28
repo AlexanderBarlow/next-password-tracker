@@ -1,15 +1,15 @@
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
 import { useEffect, useState } from "react";
 import PasswordCard from "components/PasswordCard";
-import { signOut } from 'next-auth/react';
 
 interface Password {
   id: number;
-  title: string;
-  username: string;
+  title?: string;
+  user_name?: string;
+  user_password?: string;
 }
 
 interface DashboardProps {
@@ -17,11 +17,19 @@ interface DashboardProps {
   passwordData: Password[];
 }
 
-const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
+interface DecryptedData {
+  decryptedData: string;
+}
+
+interface ErrorData {
+  message: string;
+}
+
+const Dashboard: NextPage<DashboardProps> = () => {
   const [issue, setAlert] = useState(false);
   const [isAdmin, setAdmin] = useState(false);
-  const [passwordData, setPasswordData] = useState<PasswordData[]>([]);
-  const [allPasswords, setAllPasswords] = useState([]);
+  const [passwordData, setPasswordData] = useState<Password[]>([]);
+  const [allPasswords, setAllPasswords] = useState<Password[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,7 +43,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
           if (decodedToken && decodedToken.logged_in) {
             setAlert(false);
 
-            if (decodedToken.user_name === "Admin") {
+            if (decodedToken.user_name === "AdminAlex") {
               setAdmin(true);
               const response = await fetch("http://localhost:3001/", {
                 method: "GET",
@@ -47,7 +55,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
               });
 
               if (response.ok) {
-                const data = await response.json();
+                const data: [] = await response.json();
                 setAllPasswords(data);
               } else {
                 console.error("Fetch failed:", response.statusText);
@@ -93,7 +101,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
         );
 
         if (response.ok) {
-          const data = await response.json();
+          const data: DecryptedData = await response.json();
           const decryptedPassword = data.decryptedData;
 
           navigator.clipboard.writeText(decryptedPassword).then(
@@ -105,7 +113,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
             }
           );
         } else {
-          const errorData = await response.json();
+          const errorData: ErrorData = await response.json();
           console.error("Fetch failed:", response.statusText, errorData);
           alert(`Failed to copy: ${errorData.message}`);
         }
@@ -116,40 +124,40 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
     }
   };
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          // Get the session token from cookies
-          const sessionToken = Cookies.get("sessionToken");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Get the session token from cookies
+        const sessionToken = Cookies.get("sessionToken");
 
-          if (sessionToken) {
-            const response = await fetch("http://localhost:3001/dashboard/", {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
-              },
-              credentials: "include",
-            });
+        if (sessionToken) {
+          const response = await fetch("http://localhost:3001/dashboard/", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
+            },
+            credentials: "include",
+          });
 
-            if (response.ok) {
-              const data = await response.json();
-              setPasswordData(data.password);
-              // Handle the data as needed
-            } else {
-              // Handle error response
-              console.error("Fetch failed:", response.statusText);
-            }
+          if (response.ok) {
+            const data = await response.json();
+            setPasswordData(data.password);
+            // Handle the data as needed
           } else {
-            console.error("No session token found.");
+            // Handle error response
+            console.error("Fetch failed:", response.statusText);
           }
-        } catch (error) {
-          console.error("Error during fetch:", error);
+        } else {
+          console.error("No session token found.");
         }
-      };
+      } catch (error) {
+        console.error("Error during fetch:", error);
+      }
+    };
 
-      fetchData();
-    }, []);
+    fetchData();
+  }, []);
 
   const onDelete = async (id: number) => {
     const sessionToken = Cookies.get("sessionToken");
@@ -173,7 +181,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
         );
         alert(`Password with ID ${id} deleted successfully`);
       } else {
-        const errorData = await response.json();
+        const errorData: ErrorData = await response.json();
         console.error("Delete failed:", response.statusText, errorData);
         alert(`Failed to delete: ${errorData.message}`);
       }
@@ -188,9 +196,10 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
   );
 
   // Event handler for mouse down
-  const handleMouseDown = (event: React.MouseEvent, id: number) => {
+  const handleMouseDown = (event: React.MouseEvent, item: Password) => {
+    const itemId = item.id ?? 0; // Use 0 as a default value if item.id is undefined
     if (event.button === 0) {
-      setRevealedPasswordId(id);
+      setRevealedPasswordId(itemId);
     }
   };
 
@@ -199,45 +208,47 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
     setRevealedPasswordId(null);
   };
 
- const updateUserPassword = async (userId: number) => {
-   try {
-     // Assuming you have a state variable for the new password, replace 'newPassword' with your state variable
-     const newPassword = prompt("Enter the new password:");
+  const updateUserPassword = async (userId: number | undefined) => {
+    if (userId === undefined) {
+      console.error("User ID is undefined");
+      return;
+    }
 
-     if (!newPassword) {
-       // User canceled the operation
-       return;
-     }
+    try {
+      const newPassword = prompt("Enter the new password:");
 
-     const sessionToken = Cookies.get("sessionToken");
+      if (!newPassword) {
+        // User canceled the operation
+        return;
+      }
 
-     const response = await fetch("http://localhost:3001/api/users/updatep", {
-       method: "PUT",
-       headers: {
-         "Content-Type": "application/json",
-         Authorization: `Bearer ${sessionToken}`,
-       },
-       credentials: "include",
-       body: JSON.stringify({
-         id: userId,
-         newPassword: newPassword,
-       }),
-     });
+      const sessionToken = Cookies.get("sessionToken");
 
-     if (response.ok) {
-       alert("Password updated successfully!");
-     } else {
-       const errorData = await response.json();
-       console.error("Update failed:", response.statusText, errorData);
-       alert(`Failed to update password: ${errorData.message}`);
-     }
-   } catch (error) {
-     console.error("Error during fetch:", error);
-     alert("An unexpected error occurred.");
-   }
- };
+      const response = await fetch("http://localhost:3001/api/users/updatep", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          id: userId,
+          newPassword: newPassword,
+        }),
+      });
 
- console.log(passwordData)
+      if (response.ok) {
+        alert("Password updated successfully!");
+      } else {
+        const errorData: ErrorData = await response.json();
+        console.error("Update failed:", response.statusText, errorData);
+        throw new Error(`Failed to update password: ${errorData.message}`);
+      }
+    } catch (error) {
+      // Do nothing or handle the error if needed
+      throw error; // Propagate the error to the calling code
+    }
+  };
 
   return (
     <section
@@ -251,7 +262,7 @@ const Dashboard: NextPage<DashboardProps> = ({ loggedIn }) => {
             {allPasswords.map((item) => (
               <div
                 key={item.id}
-                onMouseDown={(e) => handleMouseDown(e, item.id)}
+                onMouseDown={(e) => handleMouseDown(e, item)}
                 className="mb-3 p-3 border"
               >
                 <p className="darkGreen">Username: {item.user_name}</p>

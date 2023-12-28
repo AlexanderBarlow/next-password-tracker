@@ -9,16 +9,14 @@ interface Response {
 
 const UpdatePassword = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const id = router.query!.id!; // Use non-null assertion operator
   const [title, setTitle] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   useEffect(() => {
     // Use an empty string as the default value if Cookies.get("sessionToken") is undefined
-const sessionToken = (Cookies.get("sessionToken") as string) ?? "";
-
-
+    const sessionToken = Cookies.get("sessionToken") || "";
 
     try {
       // Decode the JWT token (no verification)
@@ -31,19 +29,19 @@ const sessionToken = (Cookies.get("sessionToken") as string) ?? "";
         router.replace("/");
       }
 
-    if (
-      id &&
-      ((typeof id === "string" && !/^\d+$/.test(id)) ||
-        (Array.isArray(id) &&
-          id.length > 0 &&
-          typeof id[0] === "string" &&
-          !/^\d+$/.test(id[0]?.toString())))
-    ) {
-      console.error("Invalid ID parameter.");
-      alert("Invalid ID parameter.");
-      // Redirect to dashboard or handle accordingly
-      router.replace("/dashboard");
-    }
+      if (
+        id &&
+        ((typeof id === "string" && !/^\d+$/.test(id)) ||
+          (Array.isArray(id) &&
+            id.length > 0 &&
+            typeof id[0] === "string" &&
+            !/^\d+$/.test(id[0]?.toString())))
+      ) {
+        console.error("Invalid ID parameter.");
+        alert("Invalid ID parameter.");
+        // Redirect to dashboard or handle accordingly
+        router.replace("/dashboard");
+      }
     } catch (error) {
       console.error("Error decoding JWT token:", error);
       alert("An unexpected error occurred.");
@@ -56,14 +54,14 @@ const sessionToken = (Cookies.get("sessionToken") as string) ?? "";
     event.preventDefault();
 
     if (id) {
-    const response: Response = await fetch(
-      `http://localhost:3001/api/passwords/${id}`,
-      {
-        method: "PUT",
-        body: JSON.stringify({ title, username, password }),
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+      const response: Response = await fetch(
+        `http://localhost:3001/api/passwords/${id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ title, username, password }),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (response.status === 200) {
         router.replace("/dashboard");
@@ -74,7 +72,7 @@ const sessionToken = (Cookies.get("sessionToken") as string) ?? "";
   };
 
   return (
-    <section className="container-fluid">
+    <section className="container-fluid darkColor">
       <section className="row justify-content-center">
         <section className="col-3 p-5 bg-white border rounded align-self-center">
           <h2>Update Password</h2>
@@ -84,7 +82,7 @@ const sessionToken = (Cookies.get("sessionToken") as string) ?? "";
           <form
             className="newPasswordForm"
             onSubmit={updatePassword}
-            data-id={id! as string}
+            data-id={`${id}`}
           >
             <div className="mb-3">
               <label className="form-label">Website Name</label>
