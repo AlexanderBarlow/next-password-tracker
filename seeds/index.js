@@ -1,5 +1,5 @@
-const sequelize = require("../config/connection");
-const seedUsers = require("./seed");
+import sequelize from "../config/connection.js";
+import seedUsers from "./seed.js";
 
 const seedAll = async () => {
   await sequelize.sync({ force: true });
@@ -9,5 +9,4 @@ const seedAll = async () => {
   process.exit(0);
 };
 
-// module.exports = seedAll;
 seedAll();

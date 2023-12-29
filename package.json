@@ -8,7 +8,7 @@
   "dev": "next dev",
   "lint": "next lint",
   "start": "npm run seed && next start",
-  "seed": "cd seeds && node index.js"
+  "seed": "cd seeds && node index"
 },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.7.1",

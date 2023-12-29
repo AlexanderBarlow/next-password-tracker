@@ -1,22 +1,8 @@
 import { Model, DataTypes } from "sequelize";
 import bcrypt from "bcrypt";
-import sequelize from "../config/connection";
+import sequelize from "../config/connection.js";
 
-interface UserAttributes {
-  id?: number;
-  user_name: string;
-  user_password: string;
-}
-
-class User extends Model<UserAttributes> {
-  public id!: number;
-  public user_name!: string;
-  public user_password!: string;
-
-  checkPassword(loginPw: string): boolean {
-    return bcrypt.compareSync(loginPw, this.user_password);
-  }
-}
+class User extends Model {}
 
 User.init(
   {
@@ -44,10 +30,10 @@ User.init(
   },
   {
     hooks: {
-      beforeCreate: async (newUserData: User): Promise<void> => {
+      beforeCreate: async (newUserData) => {
         newUserData.user_password = await bcrypt.hash(
           newUserData.user_password,
-          10,
+          10
         );
         return;
       },
@@ -57,7 +43,7 @@ User.init(
     freezeTableName: true,
     underscored: true,
     modelName: "user",
-  },
+  }
 );
 
 export default User;

@@ -19,7 +19,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     // Check if the sessionToken cookie exists
     const sessionToken = Cookies.get("sessionToken");
     setHasSessionToken(!!sessionToken);
-  }, []);
+  }, [hasSessionToken]);
+
+  const updateSessionToken = () => {
+    // This function is passed as a prop to the component where the token is generated
+    const sessionToken = Cookies.get("sessionToken");
+    setHasSessionToken(!!sessionToken);
+  };
 
   return (
     <>
@@ -44,7 +50,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             )}
           </div>
         </nav>
-          <Component {...pageProps} />
+        <Component {...pageProps} />
       </div>
     </>
   );

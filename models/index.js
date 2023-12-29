@@ -1,6 +1,6 @@
 // Convert CommonJS to ES module
-import  User  from "./User";
-import Passwords from "./Passwords";
+import User from "./User.js";
+import Passwords from "./Passwords.js";
 
 User.hasMany(Passwords, {
   foreignKey: "user_id",

@@ -1,9 +1,10 @@
-const { User } = require("../models");
-require("dotenv").config();
+import { User } from "../models/index.js";
+import dotenv from "dotenv";
+dotenv.config({path: '../.env.local'});
 
 const seedUser = {
   user_name: process.env.ADMIN_USER,
-  user_password: process.env.ADMIN_PASSWORD,
+  user_password: process.env.ADMIN_PW,
 };
 
 const seedUsers = async () => {
@@ -22,5 +23,4 @@ const seedUsers = async () => {
   }
 };
 
-
-module.exports = seedUsers;
+export default seedUsers;
