@@ -1,42 +1,40 @@
-const express = require("express");
-const { User } = require("../../../../../models");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const cookieParser = require("cookie-parser");
-const session = require("express-session");
-const { serialize } = require("cookie");
+// pages/api/users.js
 
-const app = express();
-app.use(cookieParser());
+import { User } from "../../../../../models";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import { serialize } from "cookie";
 
-// Set up session middleware
-const sessionMiddleware = (req, res, next) => {
-  session({
-    secret: "123",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      maxAge: 3 * 60 * 60 * 1000,
-    },
-  })(req, res, next);
-};
+export default async function handler(req, res) {
+  // Set up session middleware
+  const sessionMiddleware = (req, res, next) => {
+    session({
+      secret: "123",
+      resave: false,
+      saveUninitialized: true,
+      cookie: {
+        maxAge: 3 * 60 * 60 * 1000,
+      },
+    })(req, res, next);
+  };
 
-// Function to generate a session token
-function generateSessionToken(session) {
-  return jwt.sign(
-    {
-      user_id: session.user_id,
-      user_name: session.user_name,
-      logged_in: session.logged_in,
-    },
-    "123",
-    {
-      expiresIn: "3h",
-    },
-  );
-}
+  // Function to generate a session token
+  function generateSessionToken(session) {
+    return jwt.sign(
+      {
+        user_id: session.user_id,
+        user_name: session.user_name,
+        logged_in: session.logged_in,
+      },
+      "123",
+      {
+        expiresIn: "3h",
+      }
+    );
+  }
 
-app.all(async (req, res) => {
   // Asserting the type here
   sessionMiddleware(req, res, async () => {
     try {
@@ -56,6 +54,7 @@ app.all(async (req, res) => {
         }
 
         req.session.user_id = userData.id;
+        req.session.user_name = userData.user_name; // Store user_name in session
         req.session.logged_in = true;
 
         req.session.save((err) => {
@@ -94,6 +93,7 @@ app.all(async (req, res) => {
 
         if (req.session) {
           req.session.user_id = userData.id;
+          req.session.user_name = userData.user_name; // Store user_name in session
           req.session.logged_in = true;
 
           req.session.save((err) => {
@@ -146,7 +146,4 @@ app.all(async (req, res) => {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}

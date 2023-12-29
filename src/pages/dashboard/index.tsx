@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
 import { useEffect, useState } from "react";
-import PasswordCard from "../../components/PasswordCard";
+import PasswordCard from "../../../components/PasswordCard";
 
 interface Password {
   id: number;
@@ -39,6 +39,8 @@ const Dashboard: NextPage<DashboardProps> = () => {
       if (sessionToken) {
         try {
           const decodedToken = jwt.decode(sessionToken) as jwt.JwtPayload;
+          console.log(decodedToken);
+          
 
           if (decodedToken && decodedToken.logged_in) {
             setAlert(false);
@@ -263,7 +265,7 @@ const Dashboard: NextPage<DashboardProps> = () => {
     }
   };
   return (
-    <div className="container-fluid darkColor flex lg:h-screen h-fit items-center justify-center pb-5">
+    <div className="container-fluid darkColor flex min-h-screen h-fit items-center justify-center pb-5">
       <div className="blue border-dark mt-3 w-full rounded border p-5 text-center md:w-8/12">
         {isAdmin ? (
           <div>

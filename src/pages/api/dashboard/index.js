@@ -1,7 +1,6 @@
-const { NextApiRequest, NextApiResponse } = require("next");
-const { Passwords } = require("../../../../models");
-const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
+import { Passwords } from "../../../../models";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
 
 const handler = async (req, res) => {
   try {
@@ -47,7 +46,7 @@ const handler = async (req, res) => {
         const decipher = crypto.createDecipheriv(
           algorithm,
           securityKey,
-          initVector,
+          initVector
         );
         let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
         decryptedData += decipher.final("utf8");
@@ -90,7 +89,7 @@ const handler = async (req, res) => {
         });
 
         const passwords = passwordDB.map((password) =>
-          password.get({ plain: true }),
+          password.get({ plain: true })
         );
         res.status(200).json({ passwords });
       }
@@ -110,7 +109,7 @@ const handler = async (req, res) => {
         const cipher = crypto.createCipheriv(
           algorithm,
           securityKey,
-          initVector,
+          initVector
         );
 
         let encryptedData = cipher.update(message, "utf-8", "hex");
@@ -138,4 +137,4 @@ const handler = async (req, res) => {
   }
 };
 
-module.exports = handler;
+export default handler;

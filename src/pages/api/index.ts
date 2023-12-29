@@ -19,6 +19,7 @@ export default async function handler(
           .json({ message: "Render password view on the client side" });
       } else {
         // Fetch all users from the database
+        console.log("Admin Route")
         const allUsers = await User.findAll();
 
         // Respond with the list of users as JSON
