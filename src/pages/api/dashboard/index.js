@@ -1,17 +1,9 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { Passwords } from "../../../../models";
-import crypto from "crypto";
-import jwt from "jsonwebtoken";
+const { NextApiRequest, NextApiResponse } = require("next");
+const { Passwords } = require("../../../../models");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
-interface DecodedToken {
-  logged_in: boolean;
-  user_id: string;
-}
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handler = async (req, res) => {
   try {
     if (req.method === "GET" && req.query.action === "copy" && req.query.id) {
       const sessionToken = req.headers.authorization?.split(" ")[1];
@@ -21,7 +13,7 @@ export default async function handler(
       }
 
       try {
-        const decodedToken: DecodedToken = jwt.verify(sessionToken, "123");
+        const decodedToken = jwt.verify(sessionToken, "123");
 
         if (!decodedToken.logged_in) {
           return res.status(401).json({ error: "Unauthorized" });
@@ -30,7 +22,7 @@ export default async function handler(
         const user_id = decodedToken.user_id;
 
         const passwordDB = await Passwords.findOne({
-          where: { user_id, id: req.query.id as string },
+          where: { user_id, id: req.query.id },
           attributes: [
             "id",
             "username",
@@ -55,7 +47,7 @@ export default async function handler(
         const decipher = crypto.createDecipheriv(
           algorithm,
           securityKey,
-          initVector
+          initVector,
         );
         let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
         decryptedData += decipher.final("utf8");
@@ -98,7 +90,7 @@ export default async function handler(
         });
 
         const passwords = passwordDB.map((password) =>
-          password.get({ plain: true })
+          password.get({ plain: true }),
         );
         res.status(200).json({ passwords });
       }
@@ -118,7 +110,7 @@ export default async function handler(
         const cipher = crypto.createCipheriv(
           algorithm,
           securityKey,
-          initVector
+          initVector,
         );
 
         let encryptedData = cipher.update(message, "utf-8", "hex");
@@ -144,4 +136,6 @@ export default async function handler(
     console.error("Error:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
+
+module.exports = handler;
