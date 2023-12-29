@@ -53,7 +53,7 @@ export default function SignupForm() {
 
     try {
       const response: Response = await fetch(
-        "http://localhost:3001/api/users/",
+        "/api/api/users",
         {
           method: "POST",
           headers: {
@@ -91,10 +91,23 @@ export default function SignupForm() {
         }
       }
     } catch (error: unknown) {
-      console.error("Signup failed:", error);
+  console.error("Signup failed:", error);
+
+  if (typeof error === "object" && error !== null && "error" in error) {
+    const errorMessage = (error as { error: string }).error;
+
+    if (errorMessage.includes("Duplicate")) {
+      alert("User with this name already exists.");
+    } else {
+      // Handle other errors or show a generic message
       alert("Signup failed. Please try again.");
     }
-  };
+  } else {
+    // Handle other errors or show a generic message
+    alert("Signup failed. Please try again.");
+  }
+}
+}
 
   return (
     <section className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5">

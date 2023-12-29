@@ -1,10 +1,19 @@
-const { Model, DataTypes } = require("sequelize");
-const bcrypt = require("bcrypt");
-const sequelize = require("../config/connection");
+import { Model, DataTypes } from "sequelize";
+import bcrypt from "bcrypt";
+import sequelize from "../config/connection";
 
-class User extends Model {
-  checkPassword(loginPw) {
-    console.log(loginPw);
+interface UserAttributes {
+  id?: number;
+  user_name: string;
+  user_password: string;
+}
+
+class User extends Model<UserAttributes> {
+  public id!: number;
+  public user_name!: string;
+  public user_password!: string;
+
+  checkPassword(loginPw: string): boolean {
     return bcrypt.compareSync(loginPw, this.user_password);
   }
 }
@@ -26,18 +35,21 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        len: [8],
+        len: {
+          args: [8, Infinity],
+          msg: "Password must be at least 8 characters long",
+        },
       },
     },
   },
   {
     hooks: {
-      beforeCreate: async (newUserData) => {
+      beforeCreate: async (newUserData: User): Promise<void> => {
         newUserData.user_password = await bcrypt.hash(
           newUserData.user_password,
           10,
         );
-        return newUserData;
+        return;
       },
     },
     sequelize,
@@ -48,4 +60,4 @@ User.init(
   },
 );
 
-module.exports = User;
+export default User;

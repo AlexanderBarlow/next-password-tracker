@@ -1,5 +1,5 @@
-const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../config/connection");
+import { Model, DataTypes } from "sequelize";
+import sequelize from "../config/connection";
 
 class Passwords extends Model {}
 
@@ -48,4 +48,4 @@ Passwords.init(
   },
 );
 
-module.exports = Passwords;
+export default Passwords;

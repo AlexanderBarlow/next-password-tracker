@@ -13,12 +13,12 @@ const NewPassword: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3001/dashboard/new', {
-        method: 'POST',
+      const response = await fetch("/api/dashboard?action=new", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
           title,
           username,

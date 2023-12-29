@@ -35,12 +35,12 @@ const Login: React.FC = () => {
 
     if (username && password) {
       try {
-        const response = await fetch("http://localhost:3001/api/users/login", {
+        const response = await fetch("/api/api/users?action=login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: 'include',
+          credentials: "include",
           body: JSON.stringify({
             userName: username.value,
             password: password.value,

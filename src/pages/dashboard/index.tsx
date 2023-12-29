@@ -34,7 +34,7 @@ const Dashboard: NextPage<DashboardProps> = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const sessionToken = Cookies.get("sessionToken");
+      const sessionToken = await Cookies.get("sessionToken");
 
       if (sessionToken) {
         try {
@@ -45,7 +45,7 @@ const Dashboard: NextPage<DashboardProps> = () => {
 
             if (decodedToken.user_name === "AdminAlex") {
               setAdmin(true);
-              const response = await fetch("http://localhost:3001/", {
+              const response = await fetch("/api/", {
                 method: "GET",
                 headers: {
                   "Content-Type": "application/json",
@@ -58,6 +58,25 @@ const Dashboard: NextPage<DashboardProps> = () => {
                 const data: [] = await response.json();
                 setAllPasswords(data);
               } else {
+                console.error("Fetch failed:", response.statusText);
+              }
+            } else {
+              // Fetch user-specific data for non-admin users
+              const response = await fetch("/api/dashboard/", {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${sessionToken}`, // Include the JWT in the Authorization header
+                },
+                credentials: "include",
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                setPasswordData(data.passwords);
+                // Handle the data as needed
+              } else {
+                // Handle error response
                 console.error("Fetch failed:", response.statusText);
               }
             }
@@ -88,17 +107,14 @@ const Dashboard: NextPage<DashboardProps> = () => {
       try {
         const sessionToken = Cookies.get("sessionToken");
 
-        const response = await fetch(
-          `http://localhost:3001/dashboard/copy/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionToken}`,
-            },
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`/api/dashboard/copy/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionToken}`,
+          },
+          credentials: "include",
+        });
 
         if (response.ok) {
           const data: DecryptedData = await response.json();
@@ -131,7 +147,7 @@ const Dashboard: NextPage<DashboardProps> = () => {
         const sessionToken = Cookies.get("sessionToken");
 
         if (sessionToken) {
-          const response = await fetch("http://localhost:3001/dashboard/", {
+          const response = await fetch("/api/dashboard/", {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -163,17 +179,14 @@ const Dashboard: NextPage<DashboardProps> = () => {
     const sessionToken = Cookies.get("sessionToken");
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/passwords/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionToken}`,
-          },
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`/api/api/passwords/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        credentials: "include",
+      });
 
       if (response.ok) {
         setPasswordData((prevData) =>
@@ -224,7 +237,7 @@ const Dashboard: NextPage<DashboardProps> = () => {
 
       const sessionToken = Cookies.get("sessionToken");
 
-      const response = await fetch("http://localhost:3001/api/users/updatep", {
+      const response = await fetch("/api/api/users/updatep", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -249,13 +262,9 @@ const Dashboard: NextPage<DashboardProps> = () => {
       throw error; // Propagate the error to the calling code
     }
   };
-
   return (
-    <section
-      className="vh-100 container-fluid d-flex align-items-center justify-content-center darkColor pb-5"
-      onMouseUp={handleMouseUp}
-    >
-      <div className="col-md-6 rounded blue p-5 border border-dark text-center">
+    <div className="container-fluid darkColor flex lg:h-screen h-fit items-center justify-center pb-5">
+      <div className="blue border-dark mt-3 w-full rounded border p-5 text-center md:w-8/12">
         {isAdmin ? (
           <div>
             <h1 className="darkGreen mb-2">Welcome Admin!</h1>
@@ -263,11 +272,10 @@ const Dashboard: NextPage<DashboardProps> = () => {
               <div
                 key={item.id}
                 onMouseDown={(e) => handleMouseDown(e, item)}
-                className="mb-3 p-3 border"
+                className="custom-card mx-auto mb-3 border p-3"
               >
                 <p className="darkGreen">Username: {item.user_name}</p>
                 <p className="oliveGreen">ID: {item.id}</p>
-                {/* Conditionally show or hide password based on revealedPasswordId */}
                 <p className="yellow">
                   Password:{" "}
                   {revealedPasswordId === item.id
@@ -286,7 +294,7 @@ const Dashboard: NextPage<DashboardProps> = () => {
           </div>
         ) : (
           <>
-            <h2 className="text-center darkGreen font-weight-bold mb-4">
+            <h2 className="darkGreen mb-4 text-center font-bold md:text-left">
               Dashboard
             </h2>
             {issue ? (
@@ -294,9 +302,9 @@ const Dashboard: NextPage<DashboardProps> = () => {
                 <h1>You Must Login To Access This Page.</h1>
               </div>
             ) : passwordData && passwordData.length > 0 ? (
-              <div className="dash row row-cols-1 row-cols-md-3 g-4">
+              <div className="dash flex flex-wrap justify-center gap-4">
                 {passwordData.map((item) => (
-                  <div key={item.id} className="col mb-3">
+                  <div key={item.id} className="mb-3">
                     <PasswordCard
                       item={item}
                       onCopy={onCopy}
@@ -306,18 +314,15 @@ const Dashboard: NextPage<DashboardProps> = () => {
                 ))}
               </div>
             ) : (
-              <div className="d-flex justify-content-center align-items-center flex-column">
-                <div className="text-center mb-4">
+              <div className="flex flex-col items-center justify-center">
+                <div className="mb-4 text-center">
                   <p className="oliveGreen">Your dashboard is empty.</p>
                 </div>
               </div>
             )}
             {!isAdmin && (
-              <div>
-                <a
-                  href="/addpassword"
-                  className="d-flex justify-content-center"
-                >
+              <div className="flex justify-center">
+                <a href="/addpassword">
                   <button className="btn yellow">Add Password</button>
                 </a>
               </div>
@@ -325,7 +330,7 @@ const Dashboard: NextPage<DashboardProps> = () => {
           </>
         )}
       </div>
-    </section>
+    </div>
   );
 };
 
