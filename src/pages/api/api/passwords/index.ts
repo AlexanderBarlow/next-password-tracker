@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { User, Passwords } from "../../../../models";
+import { User, Passwords } from "../../../../../models";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Session } from "next-auth";
 
