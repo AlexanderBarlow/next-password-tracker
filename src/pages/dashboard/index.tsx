@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import { useEffect, useState } from "react";
 import PasswordCard from "../../../components/PasswordCard";
 
+require("dotenv").config();
+
 interface Password {
   id: number;
   title?: string;
@@ -45,7 +47,7 @@ const Dashboard: NextPage<DashboardProps> = () => {
           if (decodedToken && decodedToken.logged_in) {
             setAlert(false);
 
-            if (decodedToken.user_name === "AdminAlex") {
+            if (decodedToken.user_name === process.env.NEXT_PUBLIC_ADMIN_USER) {
               setAdmin(true);
               const response = await fetch("/api/", {
                 method: "GET",
