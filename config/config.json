@@ -1,0 +1,38 @@
+{
+  "development": {
+    "username": "default",
+    "password": "m3HFAKz2INZC",
+    "database": "verceldb",
+    "host": "ep-purple-art-09073978-pooler.us-east-1.postgres.vercel-storage.com",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "rejectUnauthorized": false
+      }
+    }
+  },
+  "test": {
+    "username": "default",
+    "password": "m3HFAKz2INZC",
+    "database": "verceldb",
+    "host": "ep-purple-art-09073978-pooler.us-east-1.postgres.vercel-storage.com",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "rejectUnauthorized": false
+      }
+    }
+  },
+  "production": {
+    "username": "default",
+    "password": "m3HFAKz2INZC",
+    "database": "verceldb",
+    "host": "ep-purple-art-09073978-pooler.us-east-1.postgres.vercel-storage.com",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "rejectUnauthorized": false
+      }
+    }
+  }
+}

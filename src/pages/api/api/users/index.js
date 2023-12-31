@@ -1,6 +1,6 @@
 // pages/api/users.js
 
-import { User } from "../../../../../models";
+import { Users } from "../../../../../models";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
@@ -33,12 +33,12 @@ export default async function handler(req, res) {
 
     if (req.method === "GET") {
       // Handle GET request
-      const userData = await User.findAll();
+      const userData = await Users.findAll();
       return res.status(200).json(userData);
     } else if (req.method === "POST" && req.query.action === "login") {
       // Handle login
       const body = req.body;
-      const userData = await User.findOne({
+      const userData = await Users.findOne({
         where: { user_name: body.userName },
       });
 
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     } else if (req.method === "POST") {
       // Handle other POST requests
       const body = req.body;
-      const userData = await User.create({
+      const userData = await Users.create({
         user_name: body.userName,
         user_password: body.password,
       });
@@ -120,7 +120,7 @@ export default async function handler(req, res) {
         });
       }
 
-      const user = await User.findByPk(id);
+      const user = await Users.findByPk(id);
 
       if (!user) {
         return res.status(404).json({ error: "User not found." });

@@ -1,7 +1,10 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/connection.js";
+import Users from "./User.js"; // Import the User model
 
-class Passwords extends Model {}
+class Passwords extends Model {
+  // ...
+}
 
 Passwords.init(
   {
@@ -34,9 +37,14 @@ Passwords.init(
     user_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "user",
+        model: Users, // Reference the User model
         key: "id",
       },
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
     },
   },
   {
@@ -45,7 +53,7 @@ Passwords.init(
     freezeTableName: true,
     underscored: true,
     modelName: "Passwords",
-  },
+  }
 );
 
 export default Passwords;

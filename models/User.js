@@ -1,10 +1,10 @@
-import { Model, DataTypes } from "sequelize";
-import bcrypt from "bcrypt";
+import { Model, DataTypes,Sequelize } from "sequelize";
 import sequelize from "../config/connection.js";
+import bcrypt from "bcrypt";
 
-class User extends Model {}
+class Users extends Model {}
 
-User.init(
+Users.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -27,6 +27,17 @@ User.init(
         },
       },
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      allowNull: false,
+      field: "CreatedAt",
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      allowNull: false,
+    },
   },
   {
     hooks: {
@@ -42,8 +53,7 @@ User.init(
     timestamps: false,
     freezeTableName: true,
     underscored: true,
-    modelName: "user",
   }
 );
 
-export default User;
+export default Users;

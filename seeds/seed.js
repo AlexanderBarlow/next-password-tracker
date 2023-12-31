@@ -1,4 +1,4 @@
-import { User } from "../models/index.js";
+import Users from "../models/index.js";
 import dotenv from "dotenv";
 dotenv.config({path: '../.env.local'});
 
@@ -9,7 +9,7 @@ const seedUser = {
 
 const seedUsers = async () => {
   try {
-    const [user, created] = await User.findOrCreate({
+    const [user, created] = await Users.findOrCreate({
       where: seedUser,
     });
 

@@ -1,13 +1,14 @@
-// Convert CommonJS to ES module
-import User from "./User.js";
+// models/index.js
+
+import Users from "./User.js";
 import Passwords from "./Passwords.js";
 
-User.hasMany(Passwords, {
+Users.hasMany(Passwords, {
   foreignKey: "user_id",
 });
 
-Passwords.belongsTo(User, {
+Passwords.belongsTo(Users, {
   foreignKey: "user_id",
 });
 
-export { User, Passwords };
+export { Users, Passwords };
