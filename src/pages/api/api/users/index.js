@@ -153,7 +153,6 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error("Error:", error);
-    alert("The site is down currently");
     return res.status(500).json({ error: "Internal Server Error" });
     
   }

@@ -1,24 +1,22 @@
+// config/database.js
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
-import seedAll from "../seeds/index.js";
 
 dotenv.config({ path: "../.env.local" });
 
 let sequelize;
 
 if (process.env.JAWSDB_URL) {
-  // If the app is deployed, use the JawsDB connection URL
-  sequelize = new Sequelize(process.env.POSTGRES_URL, {
+  sequelize = new Sequelize(process.env.JAWSDB_URL, {
     dialectOptions: {
       ssl: {
-        rejectUnauthorized: false, // You may need to adjust this based on your PostgreSQL server configuration
+        rejectUnauthorized: false,
       },
     },
   });
 } else {
-  // If not deployed, use the local connection parameters
   const localOptions = {
-    dialect: "postgres", // Change this to "postgres" for PostgreSQL
+    dialect: "postgres",
     host: process.env.POSTGRES_HOST || "",
     port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
     username: process.env.POSTGRES_USER || "",
@@ -26,38 +24,14 @@ if (process.env.JAWSDB_URL) {
     database: process.env.POSTGRES_DATABASE || "",
     dialectOptions: {
       ssl: {
-        rejectUnauthorized: false, // You may need to adjust this based on your PostgreSQL server configuration
+        rejectUnauthorized: false,
       },
     },
-    // Add other options as needed
   };
 
   sequelize = new Sequelize(localOptions);
 }
 
-// Test the database connection
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log(
-      "Connection to the database has been established successfully."
-    );
-  })
-  .catch((err) => {
-    console.error("Unable to connect to the database:", err);
-  });
-
-// Define your models and relationships here
-
-// Sync Sequelize models with the database
-sequelize
-  .sync({ force: false }) // Note: Change to false if you want to keep existing data
-  .then(async () => {
-    console.log("Models synchronized with the database.");
-  })
-  .catch((err) => {
-    console.error("Error syncing models with the database:", err);
-    process.exit(1);
-  });
+console.log("connection established")
 
 export default sequelize;
