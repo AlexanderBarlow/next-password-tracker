@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { User, Passwords } from "../../../../../models";
+import { Users, Passwords } from "../../../../../models";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Session } from "next-auth";
 
@@ -47,7 +47,7 @@ export default async function handler(
             {
               include: [
                 {
-                  model: User,
+                  model: Users,
                   as: "user_passwords",
                 },
               ],

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { User } from "../../../models"; 
+import { Users } from "../../../models/index.js";  
 
 export default async function handler(
   req: NextApiRequest,
@@ -20,14 +20,14 @@ export default async function handler(
       } else {
         // Fetch all users from the database
         console.log("Admin Route")
-        const allUsers = await User.findAll();
+        const allUsers = await Users.findAll();
 
         // Respond with the list of users as JSON
         res.status(200).json(allUsers);
         console.log(allUsers);
       }
     } else if (req.method === "POST" && req.query.action === "createuser") {
-      const userData = await User.create(req.body);
+      const userData = await Users.create(req.body);
 
       res.status(200).json(userData);
     } else {

@@ -1,4 +1,4 @@
-import Users from "../models/index.js";
+import Users from "../../models/index.js";
 import dotenv from "dotenv";
 dotenv.config({path: '../.env.local'});
 
