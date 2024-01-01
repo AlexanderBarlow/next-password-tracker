@@ -1,6 +1,6 @@
 // pages/api/users.js
 
-import { Users } from "../../../../../models";
+import { Users } from "../../../../../models/index.js"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";

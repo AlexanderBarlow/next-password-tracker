@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
-import Users from "../models"; // Import your Sequelize model(s)
+import seedAll from "../seeds/index.js";
 
 dotenv.config({ path: "../.env.local" });
 
@@ -47,10 +47,12 @@ sequelize
     console.error("Unable to connect to the database:", err);
   });
 
+// Define your models and relationships here
+
 // Sync Sequelize models with the database
 sequelize
-  .sync({ force: false })
-  .then(() => {
+  .sync({ force: false }) // Note: Change to false if you want to keep existing data
+  .then(async () => {
     console.log("Models synchronized with the database.");
   })
   .catch((err) => {

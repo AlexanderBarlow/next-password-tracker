@@ -4,8 +4,9 @@ import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
 import { useEffect, useState } from "react";
 import PasswordCard from "../../../components/PasswordCard";
+import dotenv from "dotenv";
 
-require("dotenv").config();
+dotenv.config({ path: "../../../.env.local" });
 
 interface Password {
   id: number;
@@ -46,7 +47,8 @@ const Dashboard: NextPage<DashboardProps> = () => {
 
           if (decodedToken && decodedToken.logged_in) {
             setAlert(false);
-
+            console.log(process.env.NEXT_PUBLIC_ADMIN_USER);
+            
             if (decodedToken.user_name === process.env.NEXT_PUBLIC_ADMIN_USER) {
               setAdmin(true);
               const response = await fetch("/api/", {

@@ -1,4 +1,4 @@
-import Users from "../../models/index.js";
+import { Users } from "../models/index.js";
 import dotenv from "dotenv";
 dotenv.config({path: '../.env.local'});
 
@@ -6,6 +6,8 @@ const seedUser = {
   user_name: process.env.ADMIN_USER,
   user_password: process.env.ADMIN_PW,
 };
+
+console.log(seedUser);
 
 const seedUsers = async () => {
   try {

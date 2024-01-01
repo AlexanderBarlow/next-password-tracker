@@ -1,0 +1,16 @@
+{
+  "builds": [
+    {
+      "src": "seeds/**",
+      "use": "@now/node-server"
+    },
+    {
+      "src": "next.config.js",
+      "use": "@now/next"
+    }
+  ],
+  "routes": [
+    { "src": "/seeds/(.*)", "dest": "/seeds/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}

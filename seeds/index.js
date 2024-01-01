@@ -6,7 +6,6 @@ const seedAll = async () => {
 
   await seedUsers();
 
-  process.exit(0);
 };
 
-seedAll();
+export default seedAll;
