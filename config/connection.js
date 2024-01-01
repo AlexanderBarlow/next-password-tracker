@@ -8,7 +8,7 @@ let sequelize;
 
 if (process.env.JAWSDB_URL) {
   // If the app is deployed, use the JawsDB connection URL
-  sequelize = new Sequelize(process.env.JAWSDB_URL, {
+  sequelize = new Sequelize(process.env.POSTGRES_URL, {
     dialectOptions: {
       ssl: {
         rejectUnauthorized: false, // You may need to adjust this based on your PostgreSQL server configuration
