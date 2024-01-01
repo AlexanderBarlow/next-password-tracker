@@ -52,20 +52,17 @@ export default function SignupForm() {
     e.preventDefault();
 
     try {
-      const response: Response = await fetch(
-        "/api/api/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            userName: userName.value,
-            password: password.value,
-          }),
-        }
-      );
+      const response: Response = await fetch("/api/api/users?action=signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          userName: userName.value,
+          password: password.value,
+        }),
+      });
 
       if (response.ok) {
         // Signup successful, handle the response as needed

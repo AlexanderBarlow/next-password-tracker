@@ -72,7 +72,7 @@ export default async function handler(req, res) {
         res.setHeader("Set-Cookie", cookie);
         return res.status(200).json(userData);
       });
-    } else if (req.method === "POST") {
+    } else if (req.method === "POST"  && req.query.action === "signup") {
       // Handle other POST requests
       const body = req.body;
       const userData = await Users.create({
