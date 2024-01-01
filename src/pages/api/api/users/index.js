@@ -1,6 +1,4 @@
-// pages/api/users.js
-
-import { Users } from "../../../../../models/index.js"
+import { Users } from "../../../../../models/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
@@ -60,6 +58,11 @@ export default async function handler(req, res) {
 
         const token = generateSessionToken(req.session);
 
+        if (!token) {
+          console.error("Error generating session token.");
+          return res.status(500).json({ error: "Internal Server Error" });
+        }
+
         const cookie = serialize("sessionToken", token, {
           maxAge: 3 * 60 * 60 * 1000,
           secure: process.env.NODE_ENV === "production",
@@ -77,14 +80,9 @@ export default async function handler(req, res) {
         user_password: body.password,
       });
 
-      if (!userData || userData instanceof Array) {
+      if (!userData || userData instanceof Array || !userData.id) {
         console.error("Invalid user data:", userData);
         return res.status(500).json({ error: "User data is invalid." });
-      }
-
-      if (typeof userData.id === "undefined") {
-        console.error("User data does not contain id:", userData);
-        return res.status(500).json({ error: "User data is missing id." });
       }
 
       if (req.session) {
@@ -99,6 +97,11 @@ export default async function handler(req, res) {
           }
 
           const token = generateSessionToken(req.session);
+
+          if (!token) {
+            console.error("Error generating session token.");
+            return res.status(500).json({ error: "Internal Server Error" });
+          }
 
           const cookie = serialize("sessionToken", token, {
             maxAge: 3 * 60 * 60 * 1000,
@@ -128,12 +131,21 @@ export default async function handler(req, res) {
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+      if (!hashedPassword) {
+        console.error("Error hashing password.");
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+
       await user.update({ user_password: hashedPassword });
 
       return res.json({ message: "Password updated successfully." });
     } else if (req.method === "POST" && req.query.action === "logout") {
       // Handle logout
-      req.session.destroy(() => {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Error destroying session:", err);
+          return res.status(500).json({ error: "Internal Server Error" });
+        }
         return res.status(204).end();
       });
     } else {
@@ -148,15 +160,20 @@ export default async function handler(req, res) {
 
 // Function to generate a session token
 function generateSessionToken(session) {
-  return jwt.sign(
-    {
-      user_id: session.user_id,
-      user_name: session.user_name,
-      logged_in: session.logged_in,
-    },
-    "123",
-    {
-      expiresIn: "3h",
-    }
-  );
+  try {
+    return jwt.sign(
+      {
+        user_id: session.user_id,
+        user_name: session.user_name,
+        logged_in: session.logged_in,
+      },
+      "123",
+      {
+        expiresIn: "3h",
+      }
+    );
+  } catch (error) {
+    console.error("Error generating session token:", error);
+    return null;
+  }
 }

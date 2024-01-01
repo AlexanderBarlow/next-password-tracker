@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config({path: '../.env.local'});
 
 const seedUser = {
-  user_name: process.env.ADMIN_USER,
+  user_name: process.env.NEXT_PUBLIC_ADMIN_USER,
   user_password: process.env.ADMIN_PW,
 };
 
