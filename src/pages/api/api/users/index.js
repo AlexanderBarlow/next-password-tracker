@@ -1,7 +1,6 @@
 import { Users } from "../../../../../models/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
 import session from "express-session";
 import { serialize } from "cookie";
 
