@@ -7,8 +7,6 @@ const seedUser = {
   user_password: process.env.ADMIN_PW,
 };
 
-console.log(seedUser);
-
 const seedUsers = async () => {
   try {
     const [user, created] = await Users.findOrCreate({
